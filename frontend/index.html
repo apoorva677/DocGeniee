@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOC GENIE</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>DOC GENIE</h1>
+    </header>
+    <main class="container">
+        <section id="input-section">
+            <h2>Document Input</h2>
+            <form id="document-form">
+                <label for="title">Document Title:</label>
+                <input type="text" id="title" name="title" required>
+                
+                <label for="type">Document Type:</label>
+                <select id="type" name="type">
+                    <option value="Academic">Academic</option>
+                    <option value="Technical">Technical</option>
+                    <option value="Business">Business</option>
+                    <option value="Proposal">Proposal</option>
+                </select>
+                
+                <label for="template">Template Selection:</label>
+                <select id="template" name="template">
+                    <option value="Default">Default</option>
+                    <!-- Add more templates as needed -->
+                </select>
+                
+                <label for="style">Formatting Style:</label>
+                <select id="style" name="style">
+                    <option value="Standard">Standard</option>
+                    <option value="Formal">Formal</option>
+                    <option value="Modern">Modern</option>
+                </select>
+                
+                <label for="content">Content:</label>
+                <textarea id="content" name="content" rows="10" required></textarea>
+                
+                <button type="button" id="generate-btn">Generate Document</button>
+            </form>
+        </section>
+        
+        <section id="preview-section">
+            <h2>Document Preview</h2>
+            <div id="preview-content"></div>
+            <button type="button" id="export-btn">Export Document</button>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
