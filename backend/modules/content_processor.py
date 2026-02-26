@@ -64,11 +64,11 @@ class ContentProcessor:
 
         for line in lines:
             if self.is_heading(line):
-                # Create a new section for the heading
+                # Create a new section for the heading with a heading block
                 current_section = Section(
                     heading=line,
                     level=1,  # Default level; will be classified later
-                    blocks=[]
+                    blocks=[Block(type="heading", content=line)]
                 )
                 sections.append(current_section)
             else:
@@ -77,7 +77,7 @@ class ContentProcessor:
                     current_section = Section(
                         heading="Introduction",
                         level=1,
-                        blocks=[]
+                        blocks=[Block(type="heading", content="Introduction")]
                     )
                     sections.append(current_section)
                 # Add as a paragraph block under the current section

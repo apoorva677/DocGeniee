@@ -30,15 +30,15 @@ class StructureClassifier:
     def _classify_heading_level(self, heading: str) -> int:
         """
         Determine the hierarchy level of a heading.
-        - If numbered (e.g., "1.", "1.1"), level = number of dots in the numbering
+        - If numbered (e.g., "1.", "1.1"), level = number of numeric parts
         - Otherwise, default to level 1
         """
-        # Match patterns like "1.", "1.1.", "2.3.4."
-        match = re.match(r'^(\d+\.)+', heading.strip())
+        # Match patterns like "1.", "1.1", "2.3.4"
+        match = re.match(r'^\d+(\.\d+)*', heading.strip())
         if match:
             numbered_part = match.group(0)
-            # Count the number of dots
-            level = numbered_part.count('.')
+            # Count the number of numeric parts
+            level = len(re.findall(r'\d+', numbered_part))
             return level
         else:
             return 1
