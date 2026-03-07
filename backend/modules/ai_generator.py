@@ -1,5 +1,8 @@
 import os
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
 from typing import Optional
 from openai import OpenAI
 from ..models.document_model import Document, Section, Block

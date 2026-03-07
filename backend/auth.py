@@ -3,7 +3,11 @@ from jose import JWTError, jwt
 from datetime import datetime, timedelta
 from .db_manager import Database
 
-SECRET_KEY = "your-secret-key-here"  # Use environment variable in production
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-here")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -30,8 +34,7 @@ def hash_password(password: str) -> str:
 def verify_password(password: str, hashed: str) -> bool:
     return hash_password(password) == hashed
 
-def authenticate_user(username: str, password: str):
-    db = Database()
+def authenticate_user(db: Database, username: str, password: str):
     user = db.get_user_by_username(username)
     if user and verify_password(password, user[3]):
         return user

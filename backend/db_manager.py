@@ -11,7 +11,7 @@ class Database:
 
     def __init__(self, db_path='doc_genie.db'):
         self.db_path = db_path
-        self.conn = sqlite3.connect(self.db_path)
+        self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.create_tables()
 
     def create_tables(self):

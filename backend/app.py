@@ -31,10 +31,16 @@ app.add_middleware(
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-def get_current_user(token: str = Depends(oauth2_scheme)):
+def get_db():
+    db = Database()
+    try:
+        yield db
+    finally:
+        db.conn.close()
+
+def get_current_user(token: str = Depends(oauth2_scheme), db: Database = Depends(get_db)):
     try:
         username = verify_token(token)
-        db = Database()
         user = db.get_user_by_username(username)
         if user is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
@@ -48,8 +54,7 @@ class RegisterRequest(BaseModel):
     password: str
 
 @app.post("/register")
-def register(request: RegisterRequest):
-    db = Database()
+def register(request: RegisterRequest, db: Database = Depends(get_db)):
     if db.get_user_by_username(request.username):
         raise HTTPException(status_code=400, detail="Username already registered")
     pwd_hash = hash_password(request.password)
@@ -60,8 +65,8 @@ def register(request: RegisterRequest):
         raise HTTPException(status_code=400, detail="Error creating user")
 
 @app.post("/token")
-def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(form_data.username, form_data.password)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Database = Depends(get_db)):
+    user = authenticate_user(db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -80,7 +85,7 @@ class GenerateRequest(BaseModel):
     placeholders: Optional[Dict[str, str]] = None
 
 @app.post("/generate")
-def generate_document(request: GenerateRequest, current_user = Depends(get_current_user)) -> Document:
+def generate_document(request: GenerateRequest, current_user = Depends(get_current_user), db: Database = Depends(get_db)) -> Document:
     try:
         processor = ContentProcessor()
         document = processor.process(
@@ -103,7 +108,6 @@ def generate_document(request: GenerateRequest, current_user = Depends(get_curre
         metrics = evaluator.evaluate(document)
         document.metadata = metrics
         
-        db = Database()
         db.save_document(current_user[0], document)
         return document
     except Exception as e:

@@ -1,10 +1,11 @@
 fastapi
 uvicorn
 pydantic
-python-dotenv
 openai
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 python-docx
 reportlab
+python-dotenv
+xhtml2pdf
