@@ -1,0 +1,70 @@
+{
+  "Non Disclosure Agreement (NDA)": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "party_a", "label": "Party A (Disclosing Party)", "type": "text", "required": true },
+      { "name": "party_b", "label": "Party B (Receiving Party)", "type": "text", "required": true },
+      { "name": "purpose", "label": "Purpose of Agreement", "type": "text", "required": true },
+      { "name": "duration", "label": "Duration (e.g., 2 years)", "type": "text", "required": true },
+      { "name": "jurisdiction", "label": "Jurisdiction (e.g., State/Country)", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Agreement Title", "Parties", "Background", "Confidential Information", "Obligations", "Exclusions", "Term", "Termination", "Governing Law", "Signatures"]
+  },
+  "Service Agreement": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "party_a", "label": "Service Provider (Party A)", "type": "text", "required": true },
+      { "name": "party_b", "label": "Client (Party B)", "type": "text", "required": true },
+      { "name": "agreement_terms", "label": "Agreement Terms / Services Provided", "type": "textarea", "required": true },
+      { "name": "duration", "label": "Duration / Timeline", "type": "text", "required": true },
+      { "name": "jurisdiction", "label": "Jurisdiction", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Agreement Title", "Parties", "Services", "Compensation", "Term", "Termination", "Relationship of Parties", "Governing Law", "Signatures"]
+  },
+  "Employment Contract": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "party_a", "label": "Employer", "type": "text", "required": true },
+      { "name": "party_b", "label": "Employee", "type": "text", "required": true },
+      { "name": "agreement_terms", "label": "Job Title & Description", "type": "textarea", "required": true },
+      { "name": "duration", "label": "Start Date / Duration", "type": "text", "required": true },
+      { "name": "jurisdiction", "label": "Jurisdiction", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Agreement Title", "Parties", "Position and Duties", "Compensation and Benefits", "Term", "Termination", "Confidentiality", "Governing Law", "Signatures"]
+  },
+  "Rental Agreement": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "party_a", "label": "Landlord", "type": "text", "required": true },
+      { "name": "party_b", "label": "Tenant", "type": "text", "required": true },
+      { "name": "agreement_terms", "label": "Property Address & Terms", "type": "textarea", "required": true },
+      { "name": "duration", "label": "Lease Term", "type": "text", "required": true },
+      { "name": "jurisdiction", "label": "Jurisdiction", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Agreement Title", "Parties", "Premises", "Term", "Rent", "Deposit", "Use of Premises", "Maintenance", "Governing Law", "Signatures"]
+  },
+  "Privacy Policy": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "organization", "label": "Company/Organization Name", "type": "text", "required": true },
+      { "name": "key_points", "label": "Data Collected & Usage", "type": "textarea", "required": true },
+      { "name": "jurisdiction", "label": "Jurisdiction", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Introduction", "Information Collection", "Use of Information", "Information Sharing", "Data Security", "User Rights", "Changes to Policy", "Contact Information"]
+  },
+  "Terms and Conditions": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "organization", "label": "Company/Website Name", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Rules / Guidelines", "type": "textarea", "required": true },
+      { "name": "jurisdiction", "label": "Jurisdiction", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Introduction", "Acceptance of Terms", "User Responsibilities", "Intellectual Property", "Limitation of Liability", "Governing Law", "Changes to Terms", "Contact Information"]
+  }
+}
