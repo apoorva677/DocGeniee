@@ -2,13 +2,14 @@ const fs = require('fs');
 const formattingService = require('../services/formattingService');
 const documentParser = require('../utils/documentParser');
 const aiContentService = require('../services/aiContentService');
+const { supabaseAdmin } = require('../config/supabase');
 
 /**
  * Intelligent Formatting Controller
  */
 exports.formatContent = async (req, res) => {
     try {
-        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle } = req.body;
+        let { title, content, userId, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle } = req.body;
 
         if (!content) {
             return res.status(400).json({ success: false, message: 'Content is required for formatting' });
@@ -25,14 +26,40 @@ exports.formatContent = async (req, res) => {
         const formattedContent = await formattingService.format({
             title,
             content: refinedText,
-            formattingType: detectedType, // Use AI detection result
+            formattingType: detectedType,
             alignment,
             paraSpacing: spacing,
-            fontSize,
-            boldHeadings,
             lineSpacing,
             fontStyle
         });
+
+        // 3. Save to Supabase History if userId is provided
+        if (userId && supabaseAdmin) {
+            // New 'documents' table
+            await supabaseAdmin
+                .from('documents')
+                .insert([{
+                    user_id: userId,
+                    title: title || 'Untitled Document',
+                    document_type: detectedType,
+                    source: 'Formatter',
+                    content: formattedContent
+                }]);
+
+            // Original table
+            const { error: dbError } = await supabaseAdmin
+                .from('generated_documents')
+                .insert([{
+                    user_id: userId,
+                    title: title || 'Untitled Document',
+                    category: 'Formatting',
+                    doc_type: detectedType,
+                    content_raw: content,
+                    content_formatted: formattedContent
+                }]);
+            
+            if (dbError) console.error('[DB Error]: Failed to save document:', dbError);
+        }
 
         console.log('[Formatting Controller]: Formatting completed successfully');
         res.json({
@@ -53,7 +80,7 @@ exports.formatUploadedDocument = async (req, res) => {
     const file = req.file;
     
     try {
-        let { title, mode, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, formattingInstructions } = req.body;
+        let { title, userId, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, formattingInstructions } = req.body;
 
         if (!file) {
             return res.status(400).json({ success: false, message: 'Document file is required' });
@@ -77,8 +104,7 @@ exports.formatUploadedDocument = async (req, res) => {
         const formattedContent = await formattingService.format({
             title: title || file.originalname.split('.')[0],
             content: refinedText,
-            mode: mode || 'auto',
-            formattingType: detectedType, // AI Detected Type
+            formattingType: detectedType,
             alignment,
             paraSpacing: spacing,
             headingStyle,
@@ -89,6 +115,34 @@ exports.formatUploadedDocument = async (req, res) => {
             boldHeadings,
             formattingInstructions
         });
+
+        // 5. Save to Supabase History if userId is provided
+        if (userId && supabaseAdmin) {
+            // New table
+            await supabaseAdmin
+                .from('documents')
+                .insert([{
+                    user_id: userId,
+                    title: title || file.originalname.split('.')[0],
+                    document_type: detectedType,
+                    source: 'Formatter',
+                    content: formattedContent
+                }]);
+
+            // Original table
+            const { error: dbError } = await supabaseAdmin
+                .from('generated_documents')
+                .insert([{
+                    user_id: userId,
+                    title: title || file.originalname.split('.')[0],
+                    category: 'Formatting',
+                    doc_type: detectedType,
+                    content_raw: extractedText,
+                    content_formatted: formattedContent
+                }]);
+            
+            if (dbError) console.error('[DB Error]: Failed to save document:', dbError);
+        }
 
         console.log('Formatted document returned');
         

@@ -577,7 +577,14 @@
     <script>
         // Temporary inline script until external script is fully linked contextually
         document.addEventListener('DOMContentLoaded', () => {
-            const form = document.getElementById('aiContentForm');
+            // Check Auth
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const generatorForm = document.getElementById('aiContentForm');
             const outputTitle = document.getElementById('outputTitle');
             const outputContent = document.getElementById('outputContent');
             const emptyState = document.getElementById('emptyState');
@@ -613,7 +620,10 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(requestData)
+                        body: JSON.stringify({
+                            ...requestData,
+                            userId: userData.id
+                        })
                     });
 
                     const data = await response.json();

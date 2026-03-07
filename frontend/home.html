@@ -260,15 +260,26 @@
         
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h1 class="welcome-title">Welcome to DOC GENIE</h1>
+            <h1 class="welcome-title" id="welcomeUser">Welcome to DOC GENIE</h1>
             <p class="welcome-subtitle">An AI powered platform that automatically generates professional documents using structured input and intelligent formatting.</p>
-            <a href="#" class="btn btn-primary">
+            <a href="professional-generator.html" class="btn btn-primary">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
                 <span>Create New Document</span>
             </a>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <div id="recentActivitySection" style="margin-bottom: 60px; display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0;">Recent Activity</h2>
+                <a href="dashboard.html" style="color: var(--primary-600); font-weight: 600; text-decoration: none; font-size: 14px;">View All history →</a>
+            </div>
+            <div id="documentsList" class="home-features-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+                <!-- Documents will be injected here -->
+            </div>
         </div>
 
         <!-- Feature Grid -->
@@ -338,7 +349,7 @@
                 <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
             </a>
 
-            <a href="#" class="home-feature-card">
+            <a href="documents.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #eab308; background: rgba(234,179,8,0.1);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><path d="M14 2v6h6"></path><path d="M2 15h10"></path><path d="M2 18h10"></path></svg>
                 </div>
@@ -398,6 +409,44 @@
 
     <script src="script.js"></script>
     <script>
+        // Check Auth and Load Data
+        document.addEventListener('DOMContentLoaded', () => {
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Update UI
+            document.getElementById('welcomeUser').textContent = `Welcome back, ${userData.user_metadata?.full_name || 'Genie'}`;
+            
+            // Load Recent Documents from new endpoint
+            fetch(`http://127.0.0.1:5000/api/documents?userId=${userData.id}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.documents.length > 0) {
+                        const list = document.getElementById('documentsList');
+                        const section = document.getElementById('recentActivitySection');
+                        section.style.display = 'block';
+                        
+                        data.documents.slice(0, 3).forEach(doc => {
+                            const card = document.createElement('div');
+                            card.className = 'home-feature-card';
+                            card.innerHTML = `
+                                <div class="hf-icon" style="background: rgba(99, 102, 241, 0.1);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path></svg>
+                                </div>
+                                <h3 class="hf-title">${doc.title}</h3>
+                                <p class="hf-desc">${doc.document_type || 'Document'} • ${new Date(doc.created_at).toLocaleDateString()}</p>
+                                <a href="documents.html" class="hf-btn">View in Documents <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></a>
+                            `;
+                            list.appendChild(card);
+                        });
+                    }
+                })
+                .catch(err => console.error('Error fetching documents:', err));
+        });
+
         async function openStreamlitDirectly() {
             try {
                 // First, tell the backend to ensure Streamlit is started
@@ -421,5 +470,7 @@
             }
         }
     </script>
+</body>
+</html>
 </body>
 </html>

@@ -365,8 +365,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // Check Auth
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+
             let currentMode = 'Auto';
-            let selectedFile = null;
+            let selectedFile = null; // Moved declaration here
 
             const modeBtns = document.querySelectorAll('.mode-btn');
             const customControls = document.getElementById('customControls');
@@ -378,6 +385,7 @@
             const fileInput = document.getElementById('fileInput');
             const fileInfo = document.getElementById('fileInfo');
             const fileNameDisplay = document.getElementById('fileName');
+            const docTitleInput = document.getElementById('docTitle'); // Get docTitle input
 
             // Handle Mode Switching
             modeBtns.forEach(btn => {
@@ -420,7 +428,6 @@
                     uploadZone.style.borderColor = 'var(--primary-600)';
                     
                     // Auto-populate Title if empty
-                    const docTitleInput = document.getElementById('docTitle');
                     if (!docTitleInput.value) {
                         docTitleInput.value = file.name.replace(/\.[^/.]+$/, "");
                     }
@@ -444,7 +451,7 @@
 
                 const formData = new FormData();
                 formData.append('file', selectedFile);
-                formData.append('title', document.getElementById('docTitle').value);
+                formData.append('title', docTitleInput.value);
                 formData.append('mode', currentMode);
                 formData.append('alignment', document.getElementById('alignment').value);
                 formData.append('fontSize', document.getElementById('fontSize').value);
@@ -523,7 +530,7 @@
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${document.getElementById('docTitle').value || 'formatted_doc'}.html`;
+                a.download = `${docTitleInput.value || 'formatted_doc'}.html`;
                 a.click();
             };
 
@@ -547,23 +554,29 @@
                 btnSave.innerText = 'Saving...';
 
                 try {
-                    const res = await fetch('http://localhost:5000/api/documents/export', {
+                    const res = await fetch('http://localhost:5000/api/formatting/save', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
-                            html: formattedOutput.innerHTML,
-                            title: document.getElementById('docTitle').value,
-                            format: format
+                            title: docTitleInput.value || 'Formatted Document',
+                            // category and docType are not present in the current HTML,
+                            // so they are omitted or can be added as empty strings/null
+                            // category: '',
+                            // docType: '',
+                            // rawContent is not directly available from the current HTML structure
+                            // contentRaw: '', 
+                            contentFormatted: formattedOutput.innerHTML,
+                            userId: userData.id,
+                            format: format // Keep format for backend to know what to export
                         })
                     });
-
                     if (!res.ok) throw new Error('Save failed');
 
                     const blob = await res.blob();
                     const url = window.URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `${document.getElementById('docTitle').value || 'formatted_doc'}.${format}`;
+                    a.download = `${docTitleInput.value || 'formatted_doc'}.${format}`;
                     a.click();
                     showToast(`Document saved as ${format.toUpperCase()}!`);
                 } catch (err) {

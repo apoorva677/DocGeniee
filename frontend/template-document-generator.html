@@ -285,221 +285,236 @@
         let selectedFile = null;
         let extractedStructure = null;
         let generatedTitle = '';
+        let userData = null;
 
-        // DOM refs
-        const uploadZone = document.getElementById('uploadZone');
-        const fileInput = document.getElementById('fileInput');
-        const fileInfoBox = document.getElementById('fileInfoBox');
-        const fileName = document.getElementById('fileName');
-        const fileSize = document.getElementById('fileSize');
-        const btnAnalyze = document.getElementById('btnAnalyze');
-        const btnBackToUpload = document.getElementById('btnBackToUpload');
-        const btnBackToAnalysis = document.getElementById('btnBackToAnalysis');
-        const btnProceedToForm = document.getElementById('btnProceedToForm');
-        const detailsForm = document.getElementById('detailsForm');
-        const btnDownload = document.getElementById('btnDownload');
-        const outputContent = document.getElementById('outputContent');
-        const emptyState = document.getElementById('emptyState');
-        const loaderOverlay = document.getElementById('loaderOverlay');
-        const outputTitle = document.getElementById('outputTitle');
-
-        // ── Step management ──
-        function showStep(n) {
-            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-            document.getElementById('step' + n).classList.add('active');
-            // Update dots
-            for (let i = 1; i <= 4; i++) {
-                const dot = document.getElementById('dot' + i);
-                if (i < n) { dot.className = 'step-dot done'; }
-                else if (i === n) { dot.className = 'step-dot active'; }
-                else { dot.className = 'step-dot'; }
-            }
-        }
-
-        // ── Drag & Drop ──
-        uploadZone.addEventListener('click', () => fileInput.click());
-        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
-        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
-        uploadZone.addEventListener('drop', e => {
-            e.preventDefault();
-            uploadZone.classList.remove('dragover');
-            const file = e.dataTransfer.files[0];
-            if (file) handleFileSelect(file);
-        });
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files[0]) handleFileSelect(fileInput.files[0]);
-        });
-
-        function handleFileSelect(file) {
-            const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
-            if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|docx)$/i)) {
-                alert('Please upload a PDF or DOCX file only.');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check Auth
+            userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
                 return;
             }
-            selectedFile = file;
-            fileName.textContent = file.name;
-            fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
-            fileInfoBox.style.display = 'block';
-            uploadZone.classList.add('has-file');
-        }
 
-        // ── Analyze ──
-        btnAnalyze.addEventListener('click', async () => {
-            if (!selectedFile) return;
-            showStep(2);
-            document.getElementById('analysisInProgress').style.display = 'block';
-            document.getElementById('analysisResult').style.display = 'none';
+            // DOM refs
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfoBox = document.getElementById('fileInfoBox');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const btnAnalyze = document.getElementById('btnAnalyze');
+            const btnBackToUpload = document.getElementById('btnBackToUpload');
+            const btnBackToAnalysis = document.getElementById('btnBackToAnalysis');
+            const btnProceedToForm = document.getElementById('btnProceedToForm');
+            const detailsForm = document.getElementById('detailsForm');
+            const btnDownload = document.getElementById('btnDownload');
+            const outputContent = document.getElementById('outputContent');
+            const emptyState = document.getElementById('emptyState');
+            const loaderOverlay = document.getElementById('loaderOverlay');
+            const outputTitle = document.getElementById('outputTitle');
 
-            try {
-                const formData = new FormData();
-                formData.append('templateFile', selectedFile);
+            // ── Step management ──
+            function showStep(n) {
+                document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+                document.getElementById('step' + n).classList.add('active');
+                // Update dots
+                for (let i = 1; i <= 4; i++) {
+                    const dot = document.getElementById('dot' + i);
+                    if (i < n) { dot.className = 'step-dot done'; }
+                    else if (i === n) { dot.className = 'step-dot active'; }
+                    else { dot.className = 'step-dot'; }
+                }
+            }
 
-                const res = await fetch(`${API_BASE}/api/template-doc/parse-template`, {
-                    method: 'POST',
-                    body: formData
-                });
-                const data = await res.json();
+            // ── Drag & Drop ──
+            uploadZone.addEventListener('click', () => fileInput.click());
+            uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+            uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+            uploadZone.addEventListener('drop', e => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file) handleFileSelect(file);
+            });
+            fileInput.addEventListener('change', () => {
+                if (fileInput.files[0]) handleFileSelect(fileInput.files[0]);
+            });
 
-                if (data.success) {
-                    extractedStructure = data.structure;
-                    showAnalysisResult(data.structure);
-                } else {
-                    alert('Analysis failed: ' + data.error);
+            function handleFileSelect(file) {
+                const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|docx)$/i)) {
+                    alert('Please upload a PDF or DOCX file only.');
+                    return;
+                }
+                selectedFile = file;
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+                fileInfoBox.style.display = 'block';
+                uploadZone.classList.add('has-file');
+            }
+
+            // ── Analyze ──
+            btnAnalyze.addEventListener('click', async () => {
+                if (!selectedFile) return;
+                showStep(2);
+                document.getElementById('analysisInProgress').style.display = 'block';
+                document.getElementById('analysisResult').style.display = 'none';
+
+                try {
+                    const formData = new FormData();
+                    formData.append('templateFile', selectedFile);
+                    formData.append('userId', userData.id);
+
+                    const res = await fetch(`${API_BASE}/api/template-doc/parse-template`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        extractedStructure = data.structure;
+                        showAnalysisResult(data.structure);
+                    } else {
+                        alert('Analysis failed: ' + data.error);
+                        showStep(1);
+                    }
+                } catch (err) {
+                    console.error('Parse error:', err);
+                    alert('Failed to connect to backend. Please ensure the server is running.');
                     showStep(1);
                 }
-            } catch (err) {
-                console.error('Parse error:', err);
-                alert('Failed to connect to backend. Please ensure the server is running.');
-                showStep(1);
-            }
-        });
-
-        function showAnalysisResult(structure) {
-            document.getElementById('analysisInProgress').style.display = 'none';
-            document.getElementById('analysisResult').style.display = 'block';
-            document.getElementById('detectedTitle').textContent = structure.title || 'Document';
-
-            const sectionsListEl = document.getElementById('sectionsList');
-            sectionsListEl.innerHTML = '';
-            (structure.sections || []).forEach(s => {
-                const badge = document.createElement('span');
-                badge.className = 'section-badge';
-                badge.textContent = s;
-                sectionsListEl.appendChild(badge);
             });
-        }
 
-        // ── Back buttons ──
-        btnBackToUpload.addEventListener('click', () => showStep(1));
-        btnBackToAnalysis.addEventListener('click', () => showStep(2));
+            function showAnalysisResult(structure) {
+                document.getElementById('analysisInProgress').style.display = 'none';
+                document.getElementById('analysisResult').style.display = 'block';
+                document.getElementById('detectedTitle').textContent = structure.title || 'Document';
 
-        // ── Proceed to Form ──
-        btnProceedToForm.addEventListener('click', () => {
-            showStep(3);
-            // Pre-fill detected title
-            const fTitle = document.getElementById('fTitle');
-            if (!fTitle.value && extractedStructure?.title) {
-                fTitle.value = extractedStructure.title !== 'Document' ? extractedStructure.title : '';
-            }
-
-            // Populate the sections reminder
-            const sectionsListForm = document.getElementById('sectionsListForm');
-            sectionsListForm.innerHTML = '';
-            (extractedStructure?.sections || []).forEach(s => {
-                const badge = document.createElement('span');
-                badge.className = 'section-badge';
-                badge.textContent = s;
-                sectionsListForm.appendChild(badge);
-            });
-        });
-
-        // ── Generate Document ──
-        detailsForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if (!extractedStructure) {
-                alert('No template structure found. Please analyze a template first.');
-                return;
-            }
-
-            const userDetails = {
-                title: document.getElementById('fTitle').value.trim(),
-                author: document.getElementById('fAuthor').value.trim(),
-                organization: document.getElementById('fOrg').value.trim(),
-                purpose: document.getElementById('fPurpose').value.trim(),
-                keyPoints: document.getElementById('fKeyPoints').value.trim(),
-                additionalInstructions: document.getElementById('fInstructions').value.trim()
-            };
-
-            generatedTitle = userDetails.title || extractedStructure.title || 'Generated Document';
-
-            emptyState.style.display = 'none';
-            outputContent.style.display = 'none';
-            loaderOverlay.classList.add('active');
-
-            try {
-                const res = await fetch(`${API_BASE}/api/template-doc/generate`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ templateStructure: extractedStructure, userDetails })
+                const sectionsListEl = document.getElementById('sectionsList');
+                sectionsListEl.innerHTML = '';
+                (structure.sections || []).forEach(s => {
+                    const badge = document.createElement('span');
+                    badge.className = 'section-badge';
+                    badge.textContent = s;
+                    sectionsListEl.appendChild(badge);
                 });
-                const data = await res.json();
+            }
 
-                if (data.success) {
-                    outputContent.innerHTML = data.data.formattedHtml;
-                    outputTitle.textContent = generatedTitle;
-                    outputContent.style.display = 'block';
-                } else {
-                    alert('Generation failed: ' + data.error);
+            // ── Back buttons ──
+            btnBackToUpload.addEventListener('click', () => showStep(1));
+            btnBackToAnalysis.addEventListener('click', () => showStep(2));
+
+            // ── Proceed to Form ──
+            btnProceedToForm.addEventListener('click', () => {
+                showStep(3);
+                // Pre-fill detected title
+                const fTitle = document.getElementById('fTitle');
+                if (!fTitle.value && extractedStructure?.title) {
+                    fTitle.value = extractedStructure.title !== 'Document' ? extractedStructure.title : '';
+                }
+
+                // Populate the sections reminder
+                const sectionsListForm = document.getElementById('sectionsListForm');
+                sectionsListForm.innerHTML = '';
+                (extractedStructure?.sections || []).forEach(s => {
+                    const badge = document.createElement('span');
+                    badge.className = 'section-badge';
+                    badge.textContent = s;
+                    sectionsListForm.appendChild(badge);
+                });
+            });
+
+            // ── Generate Document ──
+            detailsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                if (!extractedStructure) {
+                    alert('No template structure found. Please analyze a template first.');
+                    return;
+                }
+
+                const userDetails = {
+                    title: document.getElementById('fTitle').value.trim(),
+                    author: document.getElementById('fAuthor').value.trim(),
+                    organization: document.getElementById('fOrg').value.trim(),
+                    purpose: document.getElementById('fPurpose').value.trim(),
+                    keyPoints: document.getElementById('fKeyPoints').value.trim(),
+                    additionalInstructions: document.getElementById('fInstructions').value.trim()
+                };
+
+                generatedTitle = userDetails.title || extractedStructure.title || 'Generated Document';
+
+                emptyState.style.display = 'none';
+                outputContent.style.display = 'none';
+                loaderOverlay.classList.add('active');
+
+                try {
+                    const res = await fetch(`${API_BASE}/api/template-doc/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            templateStructure: extractedStructure,
+                            userDetails,
+                            userId: userData.id
+                        })
+                    });
+                    const data = await res.json();
+
+                    if (data.success) {
+                        outputContent.innerHTML = data.data.formattedHtml;
+                        outputTitle.textContent = generatedTitle;
+                        outputContent.style.display = 'block';
+                    } else {
+                        alert('Generation failed: ' + data.error);
+                        emptyState.style.display = 'flex';
+                    }
+                } catch (err) {
+                    console.error('Generate error:', err);
+                    alert('Failed to generate document. Please try again.');
                     emptyState.style.display = 'flex';
+                } finally {
+                    loaderOverlay.classList.remove('active');
                 }
-            } catch (err) {
-                console.error('Generate error:', err);
-                alert('Failed to generate document. Please try again.');
-                emptyState.style.display = 'flex';
-            } finally {
-                loaderOverlay.classList.remove('active');
-            }
-        });
+            });
 
-        // ── Download ──
-        btnDownload.addEventListener('click', async () => {
-            if (!outputContent.innerHTML || outputContent.style.display === 'none') return;
+            // ── Download ──
+            btnDownload.addEventListener('click', async () => {
+                if (!outputContent.innerHTML || outputContent.style.display === 'none') return;
 
-            const format = document.getElementById('downloadFormat').value;
-            const originalLabel = btnDownload.innerHTML;
-            btnDownload.innerHTML = 'Downloading…';
-            btnDownload.disabled = true;
+                const format = document.getElementById('downloadFormat').value;
+                const originalLabel = btnDownload.innerHTML;
+                btnDownload.innerHTML = 'Downloading…';
+                btnDownload.disabled = true;
 
-            try {
-                const res = await fetch(`${API_BASE}/api/template-doc/download`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        html: outputContent.innerHTML,
-                        title: generatedTitle,
-                        format
-                    })
-                });
+                try {
+                    const res = await fetch(`${API_BASE}/api/template-doc/download`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            html: outputContent.innerHTML,
+                            title: generatedTitle,
+                            format
+                        })
+                    });
 
-                if (res.ok) {
-                    const blob = await res.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${generatedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    alert(`Failed to download document as ${format.toUpperCase()}.`);
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${generatedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        alert(`Failed to download document as ${format.toUpperCase()}.`);
+                    }
+                } catch (err) {
+                    alert('Error downloading document.');
+                } finally {
+                    btnDownload.innerHTML = originalLabel;
+                    btnDownload.disabled = false;
                 }
-            } catch (err) {
-                alert('Error downloading document.');
-            } finally {
-                btnDownload.innerHTML = originalLabel;
-                btnDownload.disabled = false;
-            }
+            });
         });
     </script>
 </body>

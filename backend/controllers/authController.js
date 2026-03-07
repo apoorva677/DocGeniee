@@ -1,10 +1,10 @@
-const userStorage = require('../utils/userStorage');
+const { supabase } = require('../config/supabase');
 
 /**
  * POST /api/auth/signup
  * Body: { name, email, password }
  */
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -12,28 +12,28 @@ exports.signup = (req, res) => {
             return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
         }
 
-        // Check if user already exists
-        const existing = userStorage.findUserByEmail(email);
-        if (existing) {
-            return res.status(409).json({ success: false, error: 'User already exists.' });
+        // Supabase Auth Signup
+        const { data, error } = await supabase.auth.signUp({
+            email: email.trim().toLowerCase(),
+            password: password,
+            options: {
+                data: {
+                    full_name: name.trim()
+                }
+            }
+        });
+
+        if (error) {
+            return res.status(400).json({ success: false, error: error.message });
         }
 
-        // Create new user
-        const newUser = {
-            id: userStorage.getNextId(),
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            password: password  // Plain text for prototype — replace with bcrypt for production
-        };
+        console.log(`[Auth] New user registered via Supabase: ${email}`);
 
-        userStorage.addUser(newUser);
-
-        console.log(`[Auth] New user registered: ${newUser.email}`);
-
+        // Note: The SQL trigger in Supabase will automatically create a row in the public.profiles table
         return res.status(201).json({
             success: true,
-            message: 'Account created successfully. Please log in.',
-            user: { id: newUser.id, name: newUser.name, email: newUser.email }
+            message: 'Account created successfully. Please check your email for verification (if enabled) or log in.',
+            user: data.user
         });
 
     } catch (err) {
@@ -46,7 +46,7 @@ exports.signup = (req, res) => {
  * POST /api/auth/login
  * Body: { email, password }
  */
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -54,23 +54,23 @@ exports.login = (req, res) => {
             return res.status(400).json({ success: false, error: 'Email and password are required.' });
         }
 
-        // Find the user
-        const user = userStorage.findUserByEmail(email);
-        if (!user) {
-            return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+        // Supabase Auth Login
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim().toLowerCase(),
+            password: password
+        });
+
+        if (error) {
+            return res.status(401).json({ success: false, error: error.message });
         }
 
-        // Check password
-        if (user.password !== password) {
-            return res.status(401).json({ success: false, error: 'Invalid email or password.' });
-        }
-
-        console.log(`[Auth] Login successful: ${user.email}`);
+        console.log(`[Auth] Login successful via Supabase: ${email}`);
 
         return res.json({
             success: true,
             message: 'Login successful.',
-            user: { id: user.id, name: user.name, email: user.email }
+            session: data.session,
+            user: data.user
         });
 
     } catch (err) {

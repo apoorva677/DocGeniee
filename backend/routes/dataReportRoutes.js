@@ -102,8 +102,10 @@ router.post('/start-streamlit', (req, res) => {
   }
 });
 
+const { supabaseAdmin } = require('../config/supabase');
+
 // Upload endpoint
-router.post('/upload', upload.single('file'), (req, res) => {
+router.post('/upload', upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ 
@@ -111,6 +113,8 @@ router.post('/upload', upload.single('file'), (req, res) => {
         error: 'No file uploaded' 
       });
     }
+
+    const { userId } = req.body;
 
     // Store file info in session or temporary storage
     const fileInfo = {
@@ -121,13 +125,26 @@ router.post('/upload', upload.single('file'), (req, res) => {
       uploadTime: new Date().toISOString()
     };
 
-    // You could store this in a database or session
-    // For now, we'll just return success and the file info
+    // Save to Supabase History if userId is provided
+    if (userId && supabaseAdmin) {
+      const { error: dbError } = await supabaseAdmin
+        .from('generated_documents')
+        .insert([{
+            user_id: userId,
+            title: req.file.originalname,
+            category: 'Data Report',
+            doc_type: path.extname(req.file.originalname).substring(1).toUpperCase(),
+            content_raw: `File uploaded for analysis: ${req.file.originalname} (${(req.file.size / 1024).toFixed(1)} KB)`,
+            content_formatted: 'Data report analyzed via Streamlit system.'
+        }]);
+      
+      if (dbError) console.error('[DB Error]: Failed to save data report record:', dbError);
+    }
+
     res.json({ 
       success: true, 
       message: 'File uploaded successfully',
       file: fileInfo,
-      // Instructions to open Streamlit
       streamlitUrl: 'http://localhost:8501'
     });
 

@@ -399,19 +399,27 @@
 
     <script>
         let selectedFile = null;
+        let userData = null;
 
-        // File input handler
-        document.getElementById('fileInput').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            console.log('File selected:', file); // Debug log
-            if (file) {
-                selectedFile = file;
-                document.getElementById('fileName').textContent = file.name;
-                document.getElementById('fileSize').textContent = formatFileSize(file.size);
-                document.getElementById('fileInfo').classList.add('active');
-                document.getElementById('analyzeBtn').classList.add('active');
-                console.log('Button activated'); // Debug log
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check Auth
+            userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
             }
+
+            // File input handler
+            document.getElementById('fileInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    selectedFile = file;
+                    document.getElementById('fileName').textContent = file.name;
+                    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                    document.getElementById('fileInfo').classList.add('active');
+                    document.getElementById('analyzeBtn').classList.add('active');
+                }
+            });
         });
 
         function formatFileSize(bytes) {
@@ -433,9 +441,9 @@
             btn.innerHTML = '<div class="loading-spinner" style="display: inline-block; margin-right: 8px;"></div>Opening Streamlit...';
             btn.disabled = true;
 
-            // Upload the file and then open Streamlit directly
             const formData = new FormData();
             formData.append('file', selectedFile);
+            formData.append('userId', userData.id);
 
             fetch('/api/data-report/upload', {
                 method: 'POST',
@@ -444,11 +452,9 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Open Streamlit directly with the uploaded file
                     const streamlitUrl = 'http://localhost:8501';
                     window.open(streamlitUrl, '_blank');
                     
-                    // Reset button
                     btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>Streamlit Opened';
                     setTimeout(() => {
                         btn.innerHTML = originalText;

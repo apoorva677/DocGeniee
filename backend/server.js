@@ -23,6 +23,7 @@ const downloadRoutes = require('./routes/downloadRoutes');
 const templateDocumentRoutes = require('./routes/templateDocumentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const formattingRoutes = require('./routes/formattingRoutes');
+const dbRoutes = require('./routes/dbRoutes');
 
 // Use Routes
 app.use('/api/ai-content', aiContentRoutes);
@@ -36,6 +37,7 @@ app.use('/api/downloads', downloadRoutes);
 app.use('/api/template-doc', templateDocumentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/formatting', formattingRoutes);
+app.use('/api/db', dbRoutes);
 
 // Base route for health check
 app.get('/api/health', (req, res) => {
