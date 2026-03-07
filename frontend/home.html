@@ -302,13 +302,13 @@
                 <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
             </a>
 
-            <a href="#" class="home-feature-card">
+            <a href="#" class="home-feature-card" onclick="openStreamlitDirectly()">
                 <div class="hf-icon" style="color: #10b981; background: rgba(16,185,129,0.1);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                 </div>
-                <h3 class="hf-title">Data to Report Generator</h3>
-                <p class="hf-desc">Upload datasets and automatically generate analytical reports.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <h3 class="hf-title">Data Analysis</h3>
+                <p class="hf-desc">Open IIT JEE seat allocation analysis system.</p>
+                <div class="hf-btn">Open <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
             </a>
 
             <a href="#" class="home-feature-card">
@@ -397,5 +397,10 @@
     </footer>
 
     <script src="script.js"></script>
+    <script>
+        function openStreamlitDirectly() {
+            window.open('http://localhost:8501', '_blank');
+        }
+    </script>
 </body>
 </html>

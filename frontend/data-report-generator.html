@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Report Generator - DOC GENIE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--bg-dark);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .generator-container {
+            flex: 1;
+            padding: 120px 20px 60px;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .upload-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: var(--transition-smooth);
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary-600);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.1);
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+            background: linear-gradient(135deg, var(--primary-600), var(--purple-600));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .upload-title {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .upload-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, var(--primary-600), var(--purple-600));
+            color: white;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 16px;
+            transition: var(--transition-smooth);
+            border: none;
+            width: 100%;
+            text-align: center;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .file-info {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            border: 1px solid var(--primary-600);
+            display: none;
+        }
+
+        .file-info.active {
+            display: block;
+        }
+
+        .streamlit-btn {
+            margin-top: 16px;
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-block;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .streamlit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .streamlit-btn:active {
+            transform: translateY(0);
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: var(--primary-600);
+            margin-bottom: 8px;
+        }
+
+        .file-size {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .analyze-btn {
+            margin-top: 20px;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--success-600), #10b981);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: inline-block;
+        }
+
+        .analyze-btn.active {
+            display: inline-block;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .features-section {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .features-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--text-primary);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 16px;
+            color: var(--text-secondary);
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 12px;
+            color: var(--primary-600);
+            flex-shrink: 0;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading .loading-spinner {
+            display: inline-block;
+        }
+
+        .supported-formats {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .format-list {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .format-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .format-icon {
+            width: 16px;
+            height: 16px;
+            color: var(--primary-600);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background elements -->
+    <div class="hero-background" style="opacity: 0.5;">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" style="background: var(--bg-darker);">
+        <div class="container">
+            <div class="nav-content">
+                <a href="home.html" style="text-decoration: none;">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
+                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <circle cx="16" cy="16" r="3" fill="white" />
+                                <defs>
+                                    <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                                        <stop offset="0%" stop-color="#6366f1" />
+                                        <stop offset="100%" stop-color="#8b5cf6" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="logo-text">DOC GENIE</span>
+                    </div>
+                </a>
+                
+                <div class="nav-links">
+                    <a href="home.html" class="nav-link">← Back to Home</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container generator-container">
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div class="upload-icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+            </div>
+            
+            <h1 class="upload-title">Data Report Generator</h1>
+            <p class="upload-subtitle">Upload your CSV or Excel file to automatically generate comprehensive data analysis and reports</p>
+            
+            <div class="file-input-wrapper">
+                <input type="file" id="fileInput" class="file-input" accept=".csv,.xlsx,.xls">
+                <label for="fileInput" class="file-input-label">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                    Choose CSV or Excel File
+                </label>
+            </div>
+            
+            <div id="fileInfo" class="file-info">
+                <div class="file-name" id="fileName"></div>
+                <div class="file-size" id="fileSize"></div>
+            </div>
+            
+            <button id="analyzeBtn" class="analyze-btn" onclick="analyzeData()">
+                <span>Analyze Data & Generate Report</span>
+                <div class="loading-spinner"></div>
+            </button>
+            
+            <div class="supported-formats">
+                <strong>Supported formats:</strong>
+                <div class="format-list">
+                    <div class="format-item">
+                        <svg class="format-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        CSV
+                    </div>
+                    <div class="format-item">
+                        <svg class="format-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                        </svg>
+                        Excel (.xlsx, .xls)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="features-section">
+            <h2 class="features-title">What You'll Get</h2>
+            <ul class="feature-list">
+                <li class="feature-item">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Automatic data type detection and cleaning</span>
+                </li>
+                <li class="feature-item">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Interactive visualizations and charts</span>
+                </li>
+                <li class="feature-item">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Statistical analysis and insights</span>
+                </li>
+                <li class="feature-item">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Downloadable HTML reports</span>
+                </li>
+                <li class="feature-item">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Filtered data export options</span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+
+        // File input handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            console.log('File selected:', file); // Debug log
+            if (file) {
+                selectedFile = file;
+                document.getElementById('fileName').textContent = file.name;
+                document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                document.getElementById('fileInfo').classList.add('active');
+                document.getElementById('analyzeBtn').classList.add('active');
+                console.log('Button activated'); // Debug log
+            }
+        });
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function analyzeData() {
+            if (!selectedFile) {
+                alert('Please select a file first');
+                return;
+            }
+
+            const btn = document.getElementById('analyzeBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="loading-spinner" style="display: inline-block; margin-right: 8px;"></div>Opening Streamlit...';
+            btn.disabled = true;
+
+            // Upload the file and then open Streamlit directly
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            fetch('/api/data-report/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Open Streamlit directly with the uploaded file
+                    const streamlitUrl = 'http://localhost:8501';
+                    window.open(streamlitUrl, '_blank');
+                    
+                    // Reset button
+                    btn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align: middle; margin-right: 8px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>Streamlit Opened';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }, 2000);
+                } else {
+                    alert('Error uploading file: ' + data.error);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error uploading file. Please try again.');
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            });
+        }
+
+        // Drag and drop functionality
+        const uploadSection = document.querySelector('.upload-section');
+        
+        uploadSection.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'var(--primary-600)';
+            this.style.background = 'rgba(99, 102, 241, 0.05)';
+        });
+
+        uploadSection.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'var(--border-color)';
+            this.style.background = 'var(--bg-card)';
+        });
+
+        uploadSection.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = 'var(--border-color)';
+            this.style.background = 'var(--bg-card)';
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.name.endsWith('.csv') || file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+                    document.getElementById('fileInput').files = files;
+                    selectedFile = file;
+                    document.getElementById('fileName').textContent = file.name;
+                    document.getElementById('fileSize').textContent = formatFileSize(file.size);
+                    document.getElementById('fileInfo').classList.add('active');
+                    document.getElementById('analyzeBtn').classList.add('active');
+                } else {
+                    alert('Please upload a CSV or Excel file');
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,7 +1,1 @@
-# Node.js Dependencies (Install via: npm install)
-express
-cors
-dotenv
-groq-sdk
-html-to-docx
-puppeteer
+python-docs
