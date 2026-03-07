@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent Formatting Engine - DOC GENIE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: var(--bg-dark);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .workspace-container {
+            display: flex;
+            flex: 1;
+            margin-top: 73px;
+            height: calc(100vh - 73px);
+        }
+
+        /* Left Column */
+        .input-panel {
+            width: 480px;
+            background: var(--bg-darker);
+            border-right: 1px solid var(--border-color);
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .panel-header {
+            margin-bottom: 24px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Mode Selector */
+        .mode-selector {
+            display: flex;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            padding: 4px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: var(--transition-smooth);
+        }
+
+        .mode-btn.active {
+            background: var(--primary-600);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Custom Controls */
+        #customControls {
+            display: none;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        .form-textarea { min-height: 200px; resize: vertical; }
+
+        /* File Upload Zone */
+        .upload-zone {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            padding: 40px 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.02);
+            transition: var(--transition-smooth);
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .upload-zone:hover, .upload-zone.dragover {
+            border-color: var(--primary-600);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 32px;
+            color: var(--text-tertiary);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .upload-text {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .upload-text strong {
+            color: var(--primary-400);
+        }
+
+        .file-info {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--primary-400);
+            display: none;
+            font-weight: 500;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        /* Right Column */
+        .output-panel { flex: 1; background: var(--bg-dark); padding: 32px 48px; overflow-y: auto; display: flex; flex-direction: column; }
+        .output-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--bg-card); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .output-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .toolbar-actions { display: flex; gap: 8px; }
+        .action-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .action-btn.primary { background: rgba(99,102,241,0.1); color: var(--primary-600); border-color: rgba(99,102,241,0.2); }
+
+        .editor-container { flex: 1; background: #2a2a2a; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
+        .editor-content { 
+            flex: 1; 
+            width: 100%; 
+            padding: 40px; 
+            overflow-y: auto; 
+            background: #4b4b4b; /* Dark gray viewport background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            scroll-behavior: smooth;
+        }
+        
+        /* Focus state for editing */
+        .editor-content:focus-within {
+            outline: none;
+        }
+
+        .editor-content.editing .formatted-document {
+            box-shadow: 0 0 0 2px var(--primary-500);
+        }
+
+        /* Formatted Content Styles inside the preview */
+        .formatted-document {
+            transition: var(--transition-smooth);
+            transform-origin: top center;
+        }
+
+        .loader-overlay { position: absolute; inset: 0; background: rgba(10,10,15,0.8); backdrop-filter: blur(4px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 10; border-radius: 12px; }
+        .loader-overlay.active { display: flex; }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(99, 102, 241, 0.2); border-top-color: var(--primary-600); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-tertiary); text-align: center; }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" style="background: var(--bg-darker);">
+        <div class="container" style="max-width: 100%; padding: 0 32px;">
+            <div class="nav-content">
+                <a href="home.html" style="text-decoration: none;">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect width="32" height="32" rx="8" fill="url(#logo-grad)"/><path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2"/><circle cx="16" cy="16" r="3" fill="white"/><defs><linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32"><stop offset="0%" stop-color="#6366f1"/><stop offset="100%" stop-color="#8b5cf6"/></linearGradient></defs></svg>
+                        </div>
+                        <span class="logo-text">DOC GENIE</span>
+                    </div>
+                </a>
+                <div class="nav-links"><a href="home.html" class="nav-link">Home</a></div>
+                <div class="nav-profile"><div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold;">US</div><a href="login.html" class="btn btn-secondary" style="padding: 8px 16px;">Logout</a></div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="workspace-container">
+        <!-- Left Panel -->
+        <div class="input-panel">
+            <div class="panel-header">
+                <h1 class="panel-title">Intelligent Formatting Engine</h1>
+                <p style="font-size: 13px; color: var(--text-secondary); margin-top: 8px;">Automatically format raw content into professional document structure.</p>
+            </div>
+
+            <form id="formattingForm">
+                <div class="form-group">
+                    <label class="form-label">Document Title</label>
+                    <input type="text" id="docTitle" class="form-input" placeholder="e.g. Project Proposal" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Formatting Mode</label>
+                    <div class="mode-selector">
+                        <button type="button" class="mode-btn active" data-mode="Auto">Auto Format</button>
+                        <button type="button" class="mode-btn" data-mode="Custom">Custom Format</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Formatting Instructions (Optional)</label>
+                    <textarea id="formattingInstructions" class="form-input" style="min-height: 80px; resize: vertical;" placeholder="e.g. Format as a formal academic report with numbered sections."></textarea>
+                </div>
+
+                <!-- Custom Controls Area -->
+                <div id="customControls">
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Alignment</label>
+                            <select id="alignment" class="form-select">
+                                <option value="Left">Left</option>
+                                <option value="Center">Center</option>
+                                <option value="Right">Right</option>
+                                <option value="Justified" selected>Justified</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Font Size (pt)</label>
+                            <select id="fontSize" class="form-select">
+                                <option value="10">10</option>
+                                <option value="11">11</option>
+                                <option value="12" selected>12</option>
+                                <option value="14">14</option>
+                                <option value="16">16</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Line Spacing</label>
+                            <select id="lineSpacing" class="form-select">
+                                <option value="1.0">1.0</option>
+                                <option value="1.15">1.15</option>
+                                <option value="1.5" selected>1.5</option>
+                                <option value="2.0">2.0</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Document Theme</label>
+                            <select id="documentTheme" class="form-select">
+                                <option value="Modern" selected>Modern Professional</option>
+                                <option value="Classic">Classic Academic</option>
+                                <option value="Minimal">Minimal Elegant</option>
+                                <option value="Bold">Bold Business</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Heading Style</label>
+                            <select id="headingStyle" class="form-select">
+                                <option value="Standard" selected>Standard</option>
+                                <option value="Modern">Modern</option>
+                                <option value="Academic">Academic</option>
+                                <option value="Underlined">Underlined</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Bullet Style</label>
+                            <select id="bulletStyle" class="form-select">
+                                <option value="None">None</option>
+                                <option value="Bullet Points" selected>Bullet Points</option>
+                                <option value="Numbered Lists">Numbered Lists</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="align-items: center;">
+                        <div class="form-group">
+                            <label class="form-label">Font Style</label>
+                            <select id="fontStyle" class="form-select">
+                                <option value="Default" selected>Times New Roman</option>
+                                <option value="Professional">Arial</option>
+                                <option value="Modern">Inter</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-top: 15px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                            <input type="checkbox" id="boldHeadings" checked style="width: 18px; height: 18px;">
+                            <label for="boldHeadings" class="form-label" style="margin-bottom: 0; cursor: pointer; white-space: nowrap;">Bold Headings</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Upload Document (PDF, DOC/DOCX)</label>
+                    <div class="upload-zone" id="uploadZone">
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx" style="display: none;">
+                        <span class="upload-icon">📄</span>
+                        <p class="upload-text">Drag & drop your document here or <strong>browse</strong></p>
+                        <div id="fileInfo" class="file-info">Selected: <span id="fileName"></span></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Format Document</button>
+            </form>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="output-panel">
+            <div class="output-toolbar">
+                <div class="output-title" id="outputTitle">Formatted Document</div>
+                <div class="toolbar-actions">
+                    <button class="action-btn" id="btnCopy">Copy</button>
+                    <button class="action-btn" id="btnDownload">Download</button>
+                    <button class="action-btn" id="btnEdit">Edit</button>
+                    <button class="action-btn" id="btnClear">Clear</button>
+                    <button class="action-btn primary" id="btnSave">Save</button>
+                </div>
+            </div>
+
+            <div class="editor-container">
+                <!-- AI Type Badge -->
+                <div id="detectedTypeContainer" style="display: none; margin-bottom: 20pt; padding: 10pt 15pt; background: rgba(99, 102, 241, 0.1); border: 1pt solid var(--primary-600); border-radius: 12pt; text-align: center; color: var(--primary-100); font-weight: bold; letter-spacing: 0.5pt;">
+                    AI Detected Purpose: <span id="detectedDocumentType" style="color: var(--primary-400); text-transform: uppercase;"></span>
+                </div>
+
+                <div class="empty-state" id="emptyState">
+                    <div style="font-size: 40px; margin-bottom: 16px; opacity: 0.5;">🖋️</div>
+                    <p style="margin-bottom: 8px;">Upload a document and click "Format Document"</p>
+                    <p style="font-size: 13px; opacity: 0.6;">Your professional layout will appear here.</p>
+                </div>
+                <div id="formattedOutput" class="editor-content" style="display: none;" contenteditable="true" title="Click to manually edit your formatted document"></div>
+                <div class="loader-overlay" id="loaderOverlay"><div class="spinner"></div><p>Structuring document...</p></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let currentMode = 'Auto';
+            let selectedFile = null;
+
+            const modeBtns = document.querySelectorAll('.mode-btn');
+            const customControls = document.getElementById('customControls');
+            const formattingForm = document.getElementById('formattingForm');
+            const formattedOutput = document.getElementById('formattedOutput');
+            const emptyState = document.getElementById('emptyState');
+            const loaderOverlay = document.getElementById('loaderOverlay');
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+            const fileInfo = document.getElementById('fileInfo');
+            const fileNameDisplay = document.getElementById('fileName');
+
+            // Handle Mode Switching
+            modeBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    modeBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentMode = btn.dataset.mode;
+                    customControls.style.display = currentMode === 'Custom' ? 'block' : 'none';
+                });
+            });
+
+            // File Upload Interactions
+            uploadZone.addEventListener('click', () => fileInput.click());
+
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) handleFile(e.target.files[0]);
+            });
+
+            uploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+
+            uploadZone.addEventListener('dragleave', () => {
+                uploadZone.classList.remove('dragover');
+            });
+
+            uploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+            });
+
+            function handleFile(file) {
+                const ext = file.name.split('.').pop().toLowerCase();
+                if (['pdf', 'doc', 'docx'].includes(ext)) {
+                    selectedFile = file;
+                    fileInfo.style.display = 'block';
+                    fileNameDisplay.textContent = file.name;
+                    uploadZone.style.borderColor = 'var(--primary-600)';
+                    
+                    // Auto-populate Title if empty
+                    const docTitleInput = document.getElementById('docTitle');
+                    if (!docTitleInput.value) {
+                        docTitleInput.value = file.name.replace(/\.[^/.]+$/, "");
+                    }
+                } else {
+                    showToast('Invalid file type. Please upload PDF, DOC, or DOCX.', 'error');
+                }
+            }
+
+            // Handle Formatting
+            formattingForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                if (!selectedFile) {
+                    alert('Please upload a document first.');
+                    return;
+                }
+
+                loaderOverlay.classList.add('active');
+                emptyState.style.display = 'none';
+                formattedOutput.style.display = 'none';
+
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('title', document.getElementById('docTitle').value);
+                formData.append('mode', currentMode);
+                formData.append('alignment', document.getElementById('alignment').value);
+                formData.append('fontSize', document.getElementById('fontSize').value);
+                formData.append('lineSpacing', document.getElementById('lineSpacing').value);
+                formData.append('documentTheme', document.getElementById('documentTheme').value);
+                formData.append('headingStyle', document.getElementById('headingStyle').value);
+                formData.append('bulletStyle', document.getElementById('bulletStyle').value);
+                formData.append('fontStyle', document.getElementById('fontStyle').value);
+                formData.append('boldHeadings', document.getElementById('boldHeadings').checked);
+                formData.append('formattingInstructions', document.getElementById('formattingInstructions').value);
+
+                try {
+                    const response = await fetch('http://localhost:5000/api/formatting/format-document', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        formattedOutput.innerHTML = data.formattedContent;
+                        formattedOutput.style.display = 'block';
+                        
+                        // Display Detected Type
+                        if (data.detectedDocumentType) {
+                            document.getElementById('detectedDocumentType').innerText = data.detectedDocumentType;
+                            document.getElementById('detectedTypeContainer').style.display = 'block';
+                        }
+                        
+                        showToast('Formatting completed successfully!');
+                    } else {
+                        showToast('Formatting failed: ' + (data.message || 'Server error'), 'error');
+                    }
+                } catch (err) {
+                    console.error('Formatting Logic Error:', err);
+                    if (err.name === 'TypeError') {
+                        showToast('Client-side processing error. Please contact support.', 'error');
+                    } else {
+                        alert('Backend connection error - Please check if server is running on port 5000');
+                    }
+                } finally {
+                    loaderOverlay.classList.remove('active');
+                }
+            });
+
+            document.getElementById('btnEdit').onclick = () => {
+                formattedOutput.classList.add('editing');
+                formattedOutput.focus();
+                showToast('Editing mode active');
+            };
+
+            formattedOutput.onblur = () => {
+                formattedOutput.classList.remove('editing');
+            };
+
+            const btnCopy = document.getElementById('btnCopy');
+            btnCopy.onclick = () => {
+                if (!formattedOutput.innerHTML) return;
+                const range = document.createRange();
+                range.selectNode(formattedOutput);
+                window.getSelection().removeAllRanges();
+                window.getSelection().addRange(range);
+                document.execCommand('copy');
+                
+                const originalText = btnCopy.innerText;
+                btnCopy.innerText = 'Copied!';
+                btnCopy.classList.add('primary');
+                setTimeout(() => {
+                    btnCopy.innerText = originalText;
+                    btnCopy.classList.remove('primary');
+                }, 2000);
+            };
+
+            document.getElementById('btnDownload').onclick = () => {
+                if (!formattedOutput.innerHTML) return;
+                const blob = new Blob([formattedOutput.innerHTML], { type: 'text/html' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${document.getElementById('docTitle').value || 'formatted_doc'}.html`;
+                a.click();
+            };
+
+            document.getElementById('btnClear').onclick = () => {
+                if (confirm('Are you sure you want to clear the current document?')) {
+                    formattedOutput.innerHTML = '';
+                    formattedOutput.style.display = 'none';
+                    emptyState.style.display = 'flex';
+                    selectedFile = null;
+                    fileInfo.style.display = 'none';
+                    fileInput.value = '';
+                    uploadZone.style.borderColor = 'var(--border-color)';
+                }
+            };
+
+            const btnSave = document.getElementById('btnSave');
+            btnSave.onclick = async () => {
+                if (!formattedOutput.innerHTML) return;
+
+                const format = confirm('Save as PDF? (Cancel for DOCX)') ? 'pdf' : 'docx';
+                btnSave.innerText = 'Saving...';
+
+                try {
+                    const res = await fetch('http://localhost:5000/api/documents/export', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            html: formattedOutput.innerHTML,
+                            title: document.getElementById('docTitle').value,
+                            format: format
+                        })
+                    });
+
+                    if (!res.ok) throw new Error('Save failed');
+
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${document.getElementById('docTitle').value || 'formatted_doc'}.${format}`;
+                    a.click();
+                    showToast(`Document saved as ${format.toUpperCase()}!`);
+                } catch (err) {
+                    console.error('Save error:', err);
+                    showToast('Save failed', 'error');
+                } finally {
+                    btnSave.innerText = 'Save';
+                }
+            };
+
+            // Utility Toast Notification
+            function showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.style.cssText = `
+                    position: fixed;
+                    bottom: 30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                    color: white;
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    animation: slideUp 0.3s ease-out;
+                `;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideUp {
+                        from { transform: translate(-50%, 20px); opacity: 0; }
+                        to { transform: translate(-50%, 0); opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s ease-out';
+                    setTimeout(() => toast.remove(), 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

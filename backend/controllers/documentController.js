@@ -25,33 +25,62 @@ exports.exportDocument = async (req, res) => {
             res.setHeader('Content-Disposition', `attachment; filename=${fileName}.docx`);
             return res.send(docxBuffer);
         } else if (format === 'pdf') {
-            const browser = await puppeteer.launch({ headless: 'new' });
+            const browser = await puppeteer.launch({ 
+                headless: 'new',
+                args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
             const page = await browser.newPage();
             
-            // Set content with some basic styling for PDF
+            // Refined Styling for PDF Output (Enforcing Standard Academic Font)
             const styledHtml = `
                 <html>
                     <head>
+                        <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;700&display=swap" rel="stylesheet">
                         <style>
-                            body { font-family: 'Helvetica', 'Arial', sans-serif; padding: 40px; line-height: 1.6; color: #333; }
-                            h2 { color: #6366f1; margin-top: 1.5em; }
-                            p { margin-bottom: 1em; }
-                            ul, ol { margin-bottom: 1em; }
-                            li { margin-bottom: 0.5em; }
+                            @page {
+                                size: A4;
+                                margin: 0;
+                            }
+                            body { 
+                                margin: 0;
+                                padding: 0;
+                                background: white;
+                            }
+                            .formatted-document {
+                                box-shadow: none !important;
+                                border: none !important;
+                                width: 100% !important;
+                                min-height: 100vh !important;
+                                margin: 0 !important;
+                            }
                         </style>
                     </head>
                     <body>
-                        <h1>${title || 'DOC GENIE Document'}</h1>
                         ${html}
                     </body>
                 </html>
             `;
 
             await page.setContent(styledHtml, { waitUntil: 'networkidle0' });
+            
             const pdfBuffer = await page.pdf({
                 format: 'A4',
                 printBackground: true,
-                margin: { top: '20px', right: '20px', bottom: '20px', left: '20px' }
+                displayHeaderFooter: true,
+                headerTemplate: `
+                    <div style="font-size: 9pt; width: 100%; text-align: right; font-family: 'Times New Roman', serif; padding: 0 0.5in; color: #777; border-bottom: 0.5px solid #eee;">
+                        <span>${title || 'DOC GENIE Submission'}</span>
+                    </div>`,
+                footerTemplate: `
+                    <div style="font-size: 9pt; width: 100%; text-align: center; font-family: 'Times New Roman', serif; padding: 10px 0; color: #777; border-top: 0.5px solid #eee;">
+                        Page <span class="pageNumber"></span> of <span class="totalPages"></span>
+                    </div>`,
+                margin: {
+                    top: '80px',
+                    bottom: '80px',
+                    right: '1in',
+                    left: '1in'
+                }
             });
 
             await browser.close();
