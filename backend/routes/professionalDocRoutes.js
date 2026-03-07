@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const professionalController = require('../controllers/professionalController');
 
-// Placeholder route
-router.get('/', (req, res) => {
-  res.json({ message: 'professionalDocRoutes.js placeholder endpoint' });
-});
+router.post('/generate', professionalController.generateProfessionalDocument);
 
 module.exports = router;

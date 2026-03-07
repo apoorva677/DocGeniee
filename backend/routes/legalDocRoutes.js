@@ -1,9 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const legalController = require('../controllers/legalController');
 
-// Placeholder route
-router.get('/', (req, res) => {
-  res.json({ message: 'legalDocRoutes.js placeholder endpoint' });
-});
+router.post('/generate', legalController.generateLegalDocument);
 
 module.exports = router;

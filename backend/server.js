@@ -19,6 +19,9 @@ const academicDocRoutes = require('./routes/academicDocRoutes');
 const dataReportRoutes = require('./routes/dataReportRoutes');
 const templateRoutes = require('./routes/templateRoutes');
 const documentRoutes = require('./routes/documentRoutes');
+const downloadRoutes = require('./routes/downloadRoutes');
+const templateDocumentRoutes = require('./routes/templateDocumentRoutes');
+const authRoutes = require('./routes/authRoutes');
 
 // Use Routes
 app.use('/api/ai-content', aiContentRoutes);
@@ -28,6 +31,9 @@ app.use('/api/academic-doc', academicDocRoutes);
 app.use('/api/data-report', dataReportRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/document', downloadRoutes);
+app.use('/api/template-doc', templateDocumentRoutes);
+app.use('/api/auth', authRoutes);
 
 // Base route for health check
 app.get('/api/health', (req, res) => {
