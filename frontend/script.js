@@ -1,211 +1,215 @@
-// Auth State
-let authToken = localStorage.getItem('token');
-const API_BASE = 'http://127.0.0.1:8000';
-let currentDocument = null;
+// Smooth scroll behavior for navigation links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    });
+});
 
-const authSection = document.getElementById('auth-section');
-const appSection = document.getElementById('app-section');
-const logoutBtn = document.getElementById('logout-btn');
+// Navbar scroll effect
+let lastScroll = 0;
+const navbar = document.querySelector('.navbar');
 
-function checkAuth() {
-    if (authToken) {
-        authSection.style.display = 'none';
-        appSection.style.display = 'flex';
-        appSection.style.flexDirection = 'column';
-        logoutBtn.style.display = 'block';
+window.addEventListener('scroll', () => {
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll <= 0) {
+        navbar.style.background = 'rgba(10, 10, 15, 0.8)';
+        navbar.style.boxShadow = 'none';
     } else {
-        authSection.style.display = 'block';
-        appSection.style.display = 'none';
-        logoutBtn.style.display = 'none';
+        navbar.style.background = 'rgba(10, 10, 15, 0.95)';
+        navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
     }
-}
-checkAuth();
+    
+    lastScroll = currentScroll;
+});
 
-document.getElementById('login-btn').addEventListener('click', async () => {
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const msg = document.getElementById('auth-message');
-    try {
-        const formData = new URLSearchParams();
-        formData.append('username', user);
-        formData.append('password', pass);
+// Intersection Observer for fade-in animations
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.style.opacity = '1';
+            entry.target.style.transform = 'translateY(0)';
+        }
+    });
+}, observerOptions);
+
+// Observe all cards and sections
+const animatedElements = document.querySelectorAll('.feature-card, .module-card, .tech-card, .edge-case-item');
+animatedElements.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease-out, transform 0.6s ease-out';
+    observer.observe(el);
+});
+
+// Button interactions
+const buttons = document.querySelectorAll('.btn');
+buttons.forEach(button => {
+    button.addEventListener('click', function(e) {
+        // Create ripple effect
+        const ripple = document.createElement('span');
+        const rect = this.getBoundingClientRect();
+        const size = Math.max(rect.width, rect.height);
+        const x = e.clientX - rect.left - size / 2;
+        const y = e.clientY - rect.top - size / 2;
         
-        const res = await fetch(`${API_BASE}/token`, {
-            method: 'POST',
-            body: formData,
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-        });
-        if (res.ok) {
-            const data = await res.json();
-            authToken = data.access_token;
-            localStorage.setItem('token', authToken);
-            checkAuth();
-            msg.textContent = '';
-        } else {
-            msg.textContent = 'Login failed. Check credentials.';
-        }
-    } catch(e) { msg.textContent = 'Network error'; }
-});
-
-let isRegistering = false;
-document.getElementById('register-btn').addEventListener('click', async () => {
-    const user = document.getElementById('username').value;
-    const pass = document.getElementById('password').value;
-    const emailField = document.getElementById('email');
-    const msg = document.getElementById('auth-message');
-
-    if (!isRegistering) {
-        document.getElementById('email-label').style.display = 'inline-block';
-        emailField.style.display = 'inline-block';
-        document.getElementById('login-btn').style.display = 'none';
-        isRegistering = true;
-        msg.textContent = "Please fill out email as well, then click Register again.";
-        return;
-    }
-
-    try {
-        const res = await fetch(`${API_BASE}/register`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({username: user, password: pass, email: emailField.value})
-        });
-        if (res.ok) {
-            msg.textContent = 'Registered! Reloading page to login...';
-            msg.style.color = 'green';
-            setTimeout(() => location.reload(), 2000);
-        } else {
-            const err = await res.json();
-            msg.textContent = `Registration failed: ${err.detail || 'Unknown error'}`;
-        }
-    } catch(e) { msg.textContent = 'Network error'; }
-});
-
-logoutBtn.addEventListener('click', () => {
-    localStorage.removeItem('token');
-    authToken = null;
-    checkAuth();
-});
-
-// Quill Editor Setup
-const quill = new Quill('#editor-container', {
-    theme: 'snow',
-    modules: {
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            ['clean']
-        ]
-    }
-});
-
-document.getElementById('generate-btn').addEventListener('click', async () => {
-    const title = document.getElementById('title').value;
-    const type = document.getElementById('type').value;
-    const template = document.getElementById('template').value;
-    const style = document.getElementById('style').value;
-    const content = document.getElementById('content').value;
-    const btn = document.getElementById('generate-btn');
-
-    if (!title || !content) {
-        alert('Please fill in the document title and content.');
-        return;
-    }
-
-    btn.textContent = 'Generating... Please wait';
-    btn.disabled = true;
-
-    try {
-        const response = await fetch(`${API_BASE}/generate`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({
-                title: title,
-                type: type,
-                template: template,
-                style: style,
-                content: content,
-                placeholders: {
-                    "AUTHOR": document.getElementById('username')?.value || "Author",
-                    "DATE": new Date().toLocaleDateString()
-                }
-            })
-        });
-
-        if (response.status === 401) {
-            alert('Session expired. Please log in again.');
-            logoutBtn.click();
-            throw new Error('Unauthorized');
-        }
-
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const result = await response.json();
-        currentDocument = result;
+        ripple.style.width = ripple.style.height = size + 'px';
+        ripple.style.left = x + 'px';
+        ripple.style.top = y + 'px';
+        ripple.style.position = 'absolute';
+        ripple.style.borderRadius = '50%';
+        ripple.style.background = 'rgba(255, 255, 255, 0.3)';
+        ripple.style.transform = 'scale(0)';
+        ripple.style.animation = 'ripple 0.6s ease-out';
+        ripple.style.pointerEvents = 'none';
         
-        let htmlContent = `<h1>${result.title}</h1>`;
-        result.sections.forEach(sec => {
-            sec.blocks.forEach(block => {
-                let styleStr = '';
-                if (block.style) {
-                    styleStr = ` style="${Object.entries(block.style).map(([k,v]) => `${k}:${v}`).join(';')}"`;
-                }
-                if(block.type === 'heading') {
-                    const hLevel = (sec.level || 1) + 1;
-                    htmlContent += `<h${hLevel}${styleStr}>${block.content}</h${hLevel}>`;
-                } else if(block.type === 'paragraph') {
-                    htmlContent += `<p${styleStr}>${block.content}</p>`;
+        this.style.position = 'relative';
+        this.style.overflow = 'hidden';
+        this.appendChild(ripple);
+        
+        setTimeout(() => ripple.remove(), 600);
+    });
+});
+
+// Add ripple animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// Parallax effect for gradient orbs
+window.addEventListener('mousemove', (e) => {
+    const orbs = document.querySelectorAll('.gradient-orb');
+    const mouseX = e.clientX / window.innerWidth;
+    const mouseY = e.clientY / window.innerHeight;
+    
+    orbs.forEach((orb, index) => {
+        const speed = (index + 1) * 20;
+        const x = (mouseX - 0.5) * speed;
+        const y = (mouseY - 0.5) * speed;
+        orb.style.transform = `translate(${x}px, ${y}px)`;
+    });
+});
+
+// Feature card tilt effect
+const featureCards = document.querySelectorAll('.feature-card, .tech-card');
+featureCards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = (y - centerY) / 20;
+        const rotateY = (centerX - x) / 20;
+        
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+    });
+    
+    card.addEventListener('mouseleave', () => {
+        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateY(0)';
+    });
+});
+
+// Counter animation for stats
+const animateCounter = (element, target, duration = 2000) => {
+    let start = 0;
+    const increment = target / (duration / 16);
+    
+    const timer = setInterval(() => {
+        start += increment;
+        if (start >= target) {
+            element.textContent = target;
+            clearInterval(timer);
+        } else {
+            element.textContent = Math.floor(start);
+        }
+    }, 16);
+};
+
+// Trigger counter animation when stats are visible
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting && !entry.target.classList.contains('animated')) {
+            entry.target.classList.add('animated');
+            const statValues = entry.target.querySelectorAll('.stat-value');
+            statValues.forEach(stat => {
+                const text = stat.textContent;
+                const number = parseInt(text);
+                if (!isNaN(number)) {
+                    stat.textContent = '0';
+                    animateCounter(stat, number);
                 }
             });
-        });
-        
-        quill.clipboard.dangerouslyPasteHTML(htmlContent);
-
-    } catch (error) {
-        if(error.message !== 'Unauthorized') {
-            console.error('Error generating document:', error);
-            alert('Failed to generate document. Please try again.');
         }
-    } finally {
-        btn.textContent = 'Generate Document';
-        btn.disabled = false;
-    }
+    });
+}, { threshold: 0.5 });
+
+const heroStats = document.querySelector('.hero-stats');
+if (heroStats) {
+    statsObserver.observe(heroStats);
+}
+
+// Add loading animation
+window.addEventListener('load', () => {
+    document.body.style.opacity = '0';
+    setTimeout(() => {
+        document.body.style.transition = 'opacity 0.5s ease-in';
+        document.body.style.opacity = '1';
+    }, 100);
 });
 
-document.getElementById('export-btn').addEventListener('click', async () => {
-    if (!currentDocument) {
-        alert("Please generate a document first.");
-        return;
-    }
-    const format = prompt("Enter export format (pdf or docx):", "pdf")?.toLowerCase();
-    if (!format || !['pdf', 'docx'].includes(format)) return;
+// Dynamic gradient text animation
+const gradientTexts = document.querySelectorAll('.gradient-text');
+gradientTexts.forEach(text => {
+    let hue = 0;
+    setInterval(() => {
+        hue = (hue + 1) % 360;
+        text.style.filter = `hue-rotate(${hue}deg)`;
+    }, 50);
+});
 
-    try {
-        const response = await fetch(`${API_BASE}/export`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${authToken}`
-            },
-            body: JSON.stringify({ document: currentDocument, format: format })
-        });
-        if (!response.ok) throw new Error("Export failed on server.");
-        
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${currentDocument.title}.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-    } catch(e) {
-        alert(e.message);
+// Console easter egg
+console.log('%c🚀 Intelligent Document Generation System', 'font-size: 20px; font-weight: bold; color: #6366f1;');
+console.log('%cBuilt with React, Node.js, and Supabase', 'font-size: 14px; color: #8b5cf6;');
+console.log('%cStreamlining academic excellence through intelligent automation', 'font-size: 12px; color: #a1a1aa;');
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    // Press 'H' to scroll to top
+    if (e.key === 'h' || e.key === 'H') {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    
+    // Press 'F' to scroll to features
+    if (e.key === 'f' || e.key === 'F') {
+        const features = document.querySelector('#features');
+        if (features) features.scrollIntoView({ behavior: 'smooth' });
+    }
+    
+    // Press 'M' to scroll to modules
+    if (e.key === 'm' || e.key === 'M') {
+        const modules = document.querySelector('#modules');
+        if (modules) modules.scrollIntoView({ behavior: 'smooth' });
     }
 });

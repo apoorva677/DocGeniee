@@ -1,11 +1,7 @@
-fastapi
-uvicorn
-pydantic
-openai
-python-jose[cryptography]
-passlib[bcrypt]
-python-multipart
-python-docx
-reportlab
-python-dotenv
-xhtml2pdf
+# Node.js Dependencies (Install via: npm install)
+express
+cors
+dotenv
+groq-sdk
+html-to-docx
+puppeteer

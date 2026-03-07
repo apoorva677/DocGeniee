@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+
+# Environment Variables
+.env
+backend/.env
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS related
+.DS_Store
+Thumbs.db
+
+# Output/Build
+dist/
+build/
+
+# Downloaded files
+backend/*.docx
+backend/*.pdf
+frontend/*.docx
+frontend/*.pdf
