@@ -1,7 +1,7 @@
 import sqlite3
 import json
 from datetime import datetime
-from ..models.document_model import Document
+from backend.models.document_model import Document
 
 
 class Database:

@@ -1,7 +1,7 @@
 import hashlib
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
-from .database import Database
+from .db_manager import Database
 
 SECRET_KEY = "your-secret-key-here"  # Use environment variable in production
 ALGORITHM = "HS256"

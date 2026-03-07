@@ -1,42 +1,40 @@
 from backend.models.document_model import Document
 
-
 class FormattingEngine:
     """
-    FormattingEngine applies formatting styles to document blocks based on type, document type, and heading levels.
+    FormattingEngine applies formatting styles to document blocks based on formatting_style.
     """
 
     def __init__(self):
         self.themes = {
-            "academic": {
-                "heading": {"font-size": "14pt", "font-weight": "bold", "font-family": "Times New Roman"},
-                "paragraph": {"font-size": "12pt", "font-family": "Times New Roman", "line-height": "1.5"},
+            "standard": {
+                "heading": {"font-size": "14pt", "font-weight": "bold", "font-family": "Arial"},
+                "paragraph": {"font-size": "12pt", "font-family": "Arial", "line-height": "1.5"},
+                "list": {"font-size": "12pt", "font-family": "Arial"}
+            },
+            "formal": {
+                "heading": {"font-size": "16pt", "font-weight": "bold", "font-family": "Times New Roman"},
+                "paragraph": {"font-size": "12pt", "font-family": "Times New Roman", "line-height": "1.6"},
                 "list": {"font-size": "12pt", "font-family": "Times New Roman"}
             },
-            "business": {
-                "heading": {"font-size": "16pt", "font-weight": "bold", "font-family": "Arial"},
-                "paragraph": {"font-size": "11pt", "font-family": "Arial", "line-height": "1.4"},
-                "list": {"font-size": "11pt", "font-family": "Arial"}
-            },
-            "technical": {
-                "heading": {"font-size": "14pt", "font-weight": "bold", "font-family": "Courier New"},
-                "paragraph": {"font-size": "10pt", "font-family": "Courier New", "line-height": "1.2"},
-                "list": {"font-size": "10pt", "font-family": "Courier New"}
+            "modern": {
+                "heading": {"font-size": "18pt", "font-weight": "600", "font-family": "Helvetica, sans-serif"},
+                "paragraph": {"font-size": "11pt", "font-family": "Helvetica, sans-serif", "line-height": "1.4"},
+                "list": {"font-size": "11pt", "font-family": "Helvetica, sans-serif"}
             }
         }
 
     def apply_formatting(self, document: Document) -> Document:
         """
-        Apply formatting to all blocks in the document based on their type and the document's type.
-        Adjust heading styles based on section level.
+        Apply formatting to all blocks in the document based on the document's formatting_style.
         """
-        theme = self.themes.get(document.document_type, self.themes["academic"])
+        style_key = document.formatting_style.lower()
+        theme = self.themes.get(style_key, self.themes["standard"])
         for section in document.sections:
             for block in section.blocks:
                 if block.type in theme:
                     block.style = theme[block.type].copy()
                     if block.type == "heading":
-                        # Adjust font size based on heading level
                         base_size = int(block.style["font-size"].replace("pt", ""))
                         adjusted_size = base_size - (section.level - 1) * 2
                         block.style["font-size"] = f"{max(adjusted_size, 8)}pt"

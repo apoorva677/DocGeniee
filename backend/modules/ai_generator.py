@@ -1,44 +1,54 @@
+import os
+import logging
+from typing import Optional
+from openai import OpenAI
 from ..models.document_model import Document, Section, Block
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class AIGenerator:
     """
     AIGenerator handles AI-powered enhancement of document content.
-    It simulates AI processing by expanding paragraphs and adding context-specific explanations.
+    It connects to the OpenAI API (or compatible API) to generate enhanced paragraphs.
     """
+    def __init__(self):
+        self.api_key = os.environ.get("OPENAI_API_KEY")
+        self.client = OpenAI(api_key=self.api_key) if self.api_key else None
 
     def enhance_paragraph(self, text: str, document_type: str) -> str:
         """
-        Enhance a paragraph by expanding it slightly and adding a document-type-specific explanation.
-        This simulates AI enhancement without calling external APIs.
-
-        - Expands the text with additional phrasing.
-        - Adds a tailored sentence based on document_type (e.g., academic, technical, etc.).
+        Enhance a paragraph using a real LLM API.
         """
-        # Basic expansion
-        enhanced_text = text + " This is an enhanced version for better clarity."
+        if not self.client:
+            logger.warning("No OPENAI_API_KEY found. Using fallback mock implementation.")
+            return text + f" [Mock Enhanced: {document_type} context added]"
 
-        # Add type-specific explanation
-        if document_type.lower() == "academic":
-            enhanced_text += " In academic contexts, this concept is widely discussed and supported by research."
-        elif document_type.lower() == "technical":
-            enhanced_text += " Technically, this involves specific implementations and best practices."
-        elif document_type.lower() == "business":
-            enhanced_text += " In business settings, this approach can lead to improved efficiency and outcomes."
-        elif document_type.lower() == "proposal":
-            enhanced_text += " For proposals, this element strengthens the overall argument and feasibility."
-        else:
-            enhanced_text += " This enhancement provides additional depth to the content."
-
-        return enhanced_text
+        prompt = (
+            f"You are a professional document writer. Enhance the following paragraph "
+            f"to fit a '{document_type}' document style. Improve clarity, vocabulary, "
+            f"and professional tone. Do not add any conversational filler, just return "
+            f"the improved paragraph.\n\nOriginal Text: {text}"
+        )
+        
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": "You are a professional writing assistant."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.7,
+                max_tokens=300
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            logger.error(f"Error calling AI API: {e}")
+            return text # fallback to original text on error
 
     def enhance_document(self, document: Document) -> Document:
         """
         Enhance the entire document by processing each paragraph block.
-        - Loops through all sections and their blocks.
-        - Enhances only blocks of type 'paragraph'.
-        - Leaves headings and other block types unchanged.
-        - Returns the updated Document object (modified in place).
         """
         for section in document.sections:
             for block in section.blocks:
