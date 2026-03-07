@@ -32,6 +32,10 @@ app.use('/api/academic-doc', academicDocRoutes);
 app.use('/api/data-report', dataReportRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/downloads', downloadRoutes);
+app.use('/api/template-doc', templateDocumentRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/formatting', formattingRoutes);
 
 // Base route for health check
 app.get('/api/health', (req, res) => {

@@ -1,1 +1,6 @@
-python-docs
+streamlit
+pandas
+matplotlib
+plotly
+scikit-learn
+python-docx

@@ -23,8 +23,21 @@ Thumbs.db
 dist/
 build/
 
-# Downloaded files
+# Backend specific
+backend/uploads/
+backend/*.log
 backend/*.docx
 backend/*.pdf
+
+# Frontend specific
 frontend/*.docx
 frontend/*.pdf
+
+# Python/Streamlit
+__pycache__/
+*.py[cod]
+*$py.class
+.venv
+venv/
+ENV/
+.streamlit/

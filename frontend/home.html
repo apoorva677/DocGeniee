@@ -398,8 +398,27 @@
 
     <script src="script.js"></script>
     <script>
-        function openStreamlitDirectly() {
-            window.open('http://localhost:8501', '_blank');
+        async function openStreamlitDirectly() {
+            try {
+                // First, tell the backend to ensure Streamlit is started
+                const response = await fetch('http://127.0.0.1:5000/api/data-report/start-streamlit', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Give it a small moment to initialize then open
+                    setTimeout(() => {
+                        window.open(data.url || 'http://localhost:8501', '_blank');
+                    }, 1500);
+                } else {
+                    alert('Could not start Data Analysis service: ' + data.error);
+                }
+            } catch (err) {
+                console.error('Error starting Streamlit:', err);
+                // Fallback: try opening directly just in case it's already running
+                window.open('http://localhost:8501', '_blank');
+            }
         }
     </script>
 </body>
