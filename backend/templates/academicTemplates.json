@@ -1,0 +1,67 @@
+{
+  "Research Paper": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Author Name", "type": "text", "required": true },
+      { "name": "institution", "label": "Organization / Institution", "type": "text", "required": true },
+      { "name": "topic", "label": "Research Topic", "type": "text", "required": true },
+      { "name": "abstract", "label": "Abstract Summary", "type": "textarea", "required": false },
+      { "name": "methodology", "label": "Methodology", "type": "textarea", "required": true },
+      { "name": "references", "label": "Key References (Optional)", "type": "textarea", "required": false },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Abstract", "Introduction", "Methodology", "Results", "Discussion", "Conclusion", "References"]
+  },
+  "Literature Review": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Author Name", "type": "text", "required": true },
+      { "name": "topic", "label": "Research Topic", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Points / Description", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Introduction", "Methodology", "Body/Review", "Conclusion", "References"]
+  },
+  "Thesis Draft": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Author Name", "type": "text", "required": true },
+      { "name": "topic", "label": "Thesis Topic", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Arguments", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Abstract", "Introduction", "Literature Review", "Methodology", "Results", "Discussion", "Conclusion", "References"]
+  },
+  "Assignment Report": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Student Name", "type": "text", "required": true },
+      { "name": "institution", "label": "Institution", "type": "text", "required": true },
+      { "name": "topic", "label": "Assignment Topic", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Points / Answers", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Introduction", "Body/Analysis", "Conclusion"]
+  },
+  "Project Report": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Author/Team Name", "type": "text", "required": true },
+      { "name": "topic", "label": "Project Topic", "type": "text", "required": true },
+      { "name": "purpose", "label": "Purpose of Document", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Achievements/Details", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Executive Summary", "Introduction", "Project Details", "Results/Outcomes", "Conclusion"]
+  },
+  "Case Study": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Author Name", "type": "text", "required": true },
+      { "name": "topic", "label": "Case Study Subject", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Findings", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Executive Summary", "Introduction", "Background", "Evaluation of the Case", "Proposed Solutions/Changes", "Recommendations"]
+  }
+}

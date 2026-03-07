@@ -102,21 +102,24 @@
             
             <h2 class="feature-title" style="text-align: center; margin-bottom: 24px;">Welcome Back</h2>
             
-            <form action="home.html" method="GET">
+            <!-- Error message area -->
+            <div id="errorMsg" style="display:none; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); border-radius: 10px; padding: 12px 16px; margin-bottom: 20px; color: #ef4444; font-size: 14px; text-align: center;"></div>
+
+            <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" placeholder="Enter your email" required>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email" required>
                 </div>
                 <div class="form-group">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                         <label class="form-label" style="margin-bottom: 0;">Password</label>
                         <a href="#" class="auth-link" style="font-size: 13px;">Forgot?</a>
                     </div>
-                    <input type="password" class="form-input" placeholder="Enter your password" required>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
                 </div>
                 
-                <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 12px; margin-bottom: 24px;">
-                    <span>Sign In</span>
+                <button type="submit" id="loginBtn" class="btn btn-primary" style="width: 100%; justify-content: center; margin-top: 12px; margin-bottom: 24px;">
+                    <span id="loginBtnText">Sign In</span>
                     <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                         <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -129,6 +132,44 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const errorMsg = document.getElementById('errorMsg');
+            const loginBtn = document.getElementById('loginBtn');
+            const loginBtnText = document.getElementById('loginBtnText');
+
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            errorMsg.style.display = 'none';
+            loginBtnText.textContent = 'Signing in…';
+            loginBtn.disabled = true;
+
+            try {
+                const res = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    // Store user info in sessionStorage for the session
+                    sessionStorage.setItem('docgenie_user', JSON.stringify(data.user));
+                    window.location.href = 'home.html';
+                } else {
+                    errorMsg.textContent = data.error || 'Login failed. Please try again.';
+                    errorMsg.style.display = 'block';
+                }
+            } catch (err) {
+                errorMsg.textContent = 'Cannot connect to server. Please make sure the backend is running.';
+                errorMsg.style.display = 'block';
+            } finally {
+                loginBtnText.textContent = 'Sign In';
+                loginBtn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>

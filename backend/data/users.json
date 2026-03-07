@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "email": "john@example.com",
+    "password": "123456"
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "email": "jane@example.com",
+    "password": "password123"
+  },
+  {
+    "id": 3,
+    "name": "New User",
+    "email": "newuser@test.com",
+    "password": "pass123"
+  },
+  {
+    "id": 4,
+    "name": "Ananya",
+    "email": "23wh1a05d7@bvrithyderabad.edu.in",
+    "password": "Welcome#12345"
+  }
+]

@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Document Generator - DOC GENIE</title>
+    <meta name="description" content="Upload a PDF or DOCX template and generate a professionally structured document using AI.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body { background: var(--bg-dark); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+        .workspace-container { display: flex; flex: 1; margin-top: 73px; height: calc(100vh - 73px); }
+
+        /* ─── Left Panel ─── */
+        .input-panel { width: 460px; background: var(--bg-darker); border-right: 1px solid var(--border-color); padding: 32px; overflow-y: auto; display: flex; flex-direction: column; flex-shrink: 0; }
+        .panel-header { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        .panel-title { font-family: var(--font-display); font-size: 20px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+        .panel-icon { color: #f59e0b; background: rgba(245,158,11,0.1); width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .panel-subtitle { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+
+        /* ─── Step Indicator ─── */
+        .step-indicator { display: flex; gap: 6px; margin-bottom: 28px; }
+        .step-dot { flex: 1; height: 4px; border-radius: 2px; background: var(--border-color); transition: background 0.3s; }
+        .step-dot.active { background: #f59e0b; }
+        .step-dot.done { background: #10b981; }
+
+        /* ─── Upload Zone ─── */
+        .upload-zone { border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px 24px; text-align: center; cursor: pointer; transition: all 0.3s; background: rgba(0,0,0,0.1); }
+        .upload-zone:hover, .upload-zone.dragover { border-color: #f59e0b; background: rgba(245,158,11,0.05); }
+        .upload-zone.has-file { border-color: #10b981; border-style: solid; background: rgba(16,185,129,0.05); }
+        .upload-icon { color: #f59e0b; margin-bottom: 12px; }
+        .upload-title { font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+        .upload-subtitle { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+        .upload-formats { display: flex; gap: 8px; justify-content: center; margin-top: 16px; }
+        .format-badge { background: rgba(245,158,11,0.1); color: #f59e0b; border: 1px solid rgba(245,158,11,0.2); padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
+        #fileInput { display: none; }
+
+        /* ─── File Info ─── */
+        .file-info { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 10px; padding: 14px 16px; display: flex; align-items: center; gap: 12px; }
+        .file-info-icon { color: #10b981; flex-shrink: 0; }
+        .file-info-name { font-size: 14px; font-weight: 500; color: var(--text-primary); word-break: break-all; }
+        .file-info-size { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+        /* ─── Analysis State ─── */
+        .analysis-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; }
+        .analysis-progress { display: flex; flex-direction: column; align-items: center; padding: 12px 0; }
+        .analysis-spinner { width: 36px; height: 36px; border: 3px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 12px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .analysis-label { font-size: 13px; color: var(--text-secondary); }
+
+        /* ─── Section Badges ─── */
+        .sections-container { margin-top: 16px; }
+        .sections-label { font-size: 12px; color: var(--text-secondary); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+        .sections-list { display: flex; flex-wrap: wrap; gap: 8px; }
+        .section-badge { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2); color: #f59e0b; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+
+        /* ─── Form Styles ─── */
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: 12px; font-weight: 600; color: var(--text-secondary); margin-bottom: 7px; text-transform: uppercase; letter-spacing: 0.4px; }
+        .form-input, .form-textarea { width: 100%; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 8px; padding: 11px 14px; color: var(--text-primary); font-family: var(--font-primary); font-size: 14px; transition: var(--transition-smooth); box-sizing: border-box; }
+        .form-textarea { resize: vertical; min-height: 90px; line-height: 1.5; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: #f59e0b; background: rgba(0,0,0,0.35); box-shadow: 0 0 0 2px rgba(245,158,11,0.1); }
+
+        /* ─── Buttons ─── */
+        .btn-amber { background: linear-gradient(135deg, #f59e0b, #d97706); color: #000; font-weight: 600; border: none; border-radius: 8px; padding: 12px 24px; font-size: 14px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s; margin-top: 8px; }
+        .btn-amber:hover { opacity: 0.9; }
+        .btn-amber:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .btn-outline:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .step-back-btn { background: none; border: none; color: #f59e0b; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 5px; margin-bottom: 20px; padding: 0; }
+
+        /* ─── Right Output Panel ─── */
+        .output-panel { flex: 1; background: var(--bg-dark); padding: 32px 48px; overflow-y: auto; position: relative; display: flex; flex-direction: column; }
+        .output-toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; background: var(--bg-card); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--border-color); }
+        .output-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+        .toolbar-actions { display: flex; gap: 8px; align-items: center; }
+        .action-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .action-btn:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
+        .action-btn.primary { background: rgba(245,158,11,0.1); color: #f59e0b; border-color: rgba(245,158,11,0.2); }
+        .editor-container { flex: 1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; position: relative; }
+        .editor-content { flex: 1; padding: 24px; color: var(--text-primary); line-height: 1.8; overflow-y: auto; }
+        .empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-tertiary); text-align: center; gap: 12px; }
+        .empty-icon { opacity: 0.3; }
+        .loader-overlay { position: absolute; inset: 0; background: rgba(10,10,15,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; z-index: 10; transition: 0.3s; border-radius: 12px; }
+        .loader-overlay.active { opacity: 1; visibility: visible; }
+        .gen-spinner { width: 44px; height: 44px; border: 3px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 16px; }
+
+        /* ─── Step visibility ─── */
+        .step-panel { display: none; }
+        .step-panel.active { display: block; }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" style="background: var(--bg-darker); border-bottom: 1px solid var(--border-color);">
+        <div class="container" style="max-width: 100%; padding: 0 32px; display: flex; justify-content: space-between; align-items: center; height: 72px;">
+            <a href="home.html" style="text-decoration: none; display: flex; align-items: center; gap: 12px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 8px;"></div>
+                <span style="font-weight: 700; font-size: 18px; color: white;">DOC GENIE</span>
+            </a>
+            <a href="home.html" class="nav-link" style="color: var(--text-secondary); text-decoration: none;">← Back to Home</a>
+        </div>
+    </nav>
+
+    <div class="workspace-container">
+        <!-- ─── Left Panel ─── -->
+        <div class="input-panel">
+            <div class="panel-header">
+                <h1 class="panel-title">
+                    <div class="panel-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    </div>
+                    Template Generator
+                </h1>
+                <p class="panel-subtitle">Upload a PDF or DOCX template. The AI will extract the structure and generate a matching document.</p>
+            </div>
+
+            <!-- Step Progress -->
+            <div class="step-indicator">
+                <div class="step-dot active" id="dot1"></div>
+                <div class="step-dot" id="dot2"></div>
+                <div class="step-dot" id="dot3"></div>
+                <div class="step-dot" id="dot4"></div>
+            </div>
+
+            <!-- ─── STEP 1: Upload ─── -->
+            <div class="step-panel active" id="step1">
+                <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; font-weight: 500;">STEP 1 — Upload Template or Example</h3>
+
+                <!-- Upload Zone -->
+                <div class="upload-zone" id="uploadZone">
+                    <input type="file" id="fileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                    <div class="upload-icon">
+                        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                    </div>
+                    <div class="upload-title">Drag & drop or click to upload</div>
+                    <div class="upload-subtitle">Upload a template document or a finished example to use as a reference structure.</div>
+                    <div class="upload-formats">
+                        <span class="format-badge">PDF</span>
+                        <span class="format-badge">DOCX</span>
+                    </div>
+                </div>
+
+                <!-- Selected file display (hidden until file chosen) -->
+                <div id="fileInfoBox" style="display: none; margin-top: 16px;">
+                    <div class="file-info">
+                        <div class="file-info-icon">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        </div>
+                        <div>
+                            <div class="file-info-name" id="fileName">—</div>
+                            <div class="file-info-size" id="fileSize">—</div>
+                        </div>
+                    </div>
+                    <button class="btn-amber" id="btnAnalyze" style="margin-top: 16px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        Analyze Template
+                    </button>
+                </div>
+            </div>
+
+            <!-- ─── STEP 2: Analysis Result ─── -->
+            <div class="step-panel" id="step2">
+                <button class="step-back-btn" id="btnBackToUpload">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Change File
+                </button>
+                <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; font-weight: 500;">STEP 2 — Template Analysis</h3>
+
+                <!-- Analysis in progress -->
+                <div id="analysisInProgress" class="analysis-card">
+                    <div class="analysis-progress">
+                        <div class="analysis-spinner"></div>
+                        <div class="analysis-label">Extracting document structure…</div>
+                    </div>
+                </div>
+
+                <!-- Analysis done -->
+                <div id="analysisResult" style="display: none;">
+                    <div class="analysis-card" style="border-color: rgba(16,185,129,0.3);">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+                            <div style="color: #10b981;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                            </div>
+                            <span style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Structure Extracted</span>
+                        </div>
+                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 6px;">Detected Title:</div>
+                        <div id="detectedTitle" style="font-size: 15px; font-weight: 600; color: var(--text-primary); margin-bottom: 14px;"></div>
+                        <div class="sections-label">Detected Sections</div>
+                        <div class="sections-list" id="sectionsList"></div>
+                    </div>
+                    <button class="btn-amber" id="btnProceedToForm" style="margin-top: 16px;">
+                        Proceed to Fill Details
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ─── STEP 3: User Input Form ─── -->
+            <div class="step-panel" id="step3">
+                <button class="step-back-btn" id="btnBackToAnalysis">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Back to Analysis
+                </button>
+                <h3 style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px; font-weight: 500;">STEP 3 — Fill Document Details</h3>
+
+                <!-- Sections reminder -->
+                <div style="background: rgba(245,158,11,0.05); border: 1px solid rgba(245,158,11,0.15); border-radius: 8px; padding: 12px 14px; margin-bottom: 20px;">
+                    <div style="font-size: 11px; font-weight: 600; color: #f59e0b; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Sections to be generated</div>
+                    <div class="sections-list" id="sectionsListForm"></div>
+                </div>
+
+                <form id="detailsForm">
+                    <div class="form-group">
+                        <label class="form-label">Document Title</label>
+                        <input type="text" class="form-input" id="fTitle" placeholder="Enter document title">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Author Name</label>
+                        <input type="text" class="form-input" id="fAuthor" placeholder="Full name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Organization</label>
+                        <input type="text" class="form-input" id="fOrg" placeholder="Company, university, institution…">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Purpose of Document</label>
+                        <input type="text" class="form-input" id="fPurpose" placeholder="e.g. Project proposal for Q2 2025">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Key Points</label>
+                        <textarea class="form-textarea" id="fKeyPoints" placeholder="Main details, facts, or bullet points the AI should incorporate…"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Additional Instructions</label>
+                        <textarea class="form-textarea" id="fInstructions" placeholder="Tone, specific requirements, terms to include…"></textarea>
+                    </div>
+                    <button type="submit" class="btn-amber" id="btnGenerate">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        Generate Document
+                    </button>
+                </form>
+            </div>
+
+            <!-- ─── STEP 4 (complete) shown in main panel output ─── -->
+        </div>
+
+        <!-- ─── Right Output Panel ─── -->
+        <div class="output-panel">
+            <div class="output-toolbar">
+                <div class="output-title" id="outputTitle">Document Preview</div>
+                <div class="toolbar-actions">
+                    <select class="action-btn" id="downloadFormat" style="outline: none; background: rgba(255,255,255,0.03); cursor:pointer;">
+                        <option value="pdf" style="color: black;">PDF</option>
+                        <option value="docx" style="color: black;">DOCX</option>
+                    </select>
+                    <button class="action-btn primary" id="btnDownload">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download
+                    </button>
+                </div>
+            </div>
+            <div class="editor-container">
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">
+                        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 500; color: var(--text-tertiary);">Upload a template to get started</div>
+                    <div style="font-size: 13px; color: var(--text-tertiary); max-width: 280px; line-height: 1.6;">Your generated document will appear here, preserving the structure from your uploaded template.</div>
+                </div>
+                <div id="outputContent" class="editor-content" style="display: none;"></div>
+                <div class="loader-overlay" id="loaderOverlay">
+                    <div class="gen-spinner"></div>
+                    <div style="color: white; font-size: 14px; font-weight: 500;">Generating document…</div>
+                    <div style="color: var(--text-secondary); font-size: 12px; margin-top: 6px;">Following your template structure</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+
+        // State
+        let selectedFile = null;
+        let extractedStructure = null;
+        let generatedTitle = '';
+
+        // DOM refs
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfoBox = document.getElementById('fileInfoBox');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const btnAnalyze = document.getElementById('btnAnalyze');
+        const btnBackToUpload = document.getElementById('btnBackToUpload');
+        const btnBackToAnalysis = document.getElementById('btnBackToAnalysis');
+        const btnProceedToForm = document.getElementById('btnProceedToForm');
+        const detailsForm = document.getElementById('detailsForm');
+        const btnDownload = document.getElementById('btnDownload');
+        const outputContent = document.getElementById('outputContent');
+        const emptyState = document.getElementById('emptyState');
+        const loaderOverlay = document.getElementById('loaderOverlay');
+        const outputTitle = document.getElementById('outputTitle');
+
+        // ── Step management ──
+        function showStep(n) {
+            document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('step' + n).classList.add('active');
+            // Update dots
+            for (let i = 1; i <= 4; i++) {
+                const dot = document.getElementById('dot' + i);
+                if (i < n) { dot.className = 'step-dot done'; }
+                else if (i === n) { dot.className = 'step-dot active'; }
+                else { dot.className = 'step-dot'; }
+            }
+        }
+
+        // ── Drag & Drop ──
+        uploadZone.addEventListener('click', () => fileInput.click());
+        uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+        uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+        uploadZone.addEventListener('drop', e => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleFileSelect(file);
+        });
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files[0]) handleFileSelect(fileInput.files[0]);
+        });
+
+        function handleFileSelect(file) {
+            const allowed = ['application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+            if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|docx)$/i)) {
+                alert('Please upload a PDF or DOCX file only.');
+                return;
+            }
+            selectedFile = file;
+            fileName.textContent = file.name;
+            fileSize.textContent = (file.size / 1024).toFixed(1) + ' KB';
+            fileInfoBox.style.display = 'block';
+            uploadZone.classList.add('has-file');
+        }
+
+        // ── Analyze ──
+        btnAnalyze.addEventListener('click', async () => {
+            if (!selectedFile) return;
+            showStep(2);
+            document.getElementById('analysisInProgress').style.display = 'block';
+            document.getElementById('analysisResult').style.display = 'none';
+
+            try {
+                const formData = new FormData();
+                formData.append('templateFile', selectedFile);
+
+                const res = await fetch(`${API_BASE}/api/template-doc/parse-template`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    extractedStructure = data.structure;
+                    showAnalysisResult(data.structure);
+                } else {
+                    alert('Analysis failed: ' + data.error);
+                    showStep(1);
+                }
+            } catch (err) {
+                console.error('Parse error:', err);
+                alert('Failed to connect to backend. Please ensure the server is running.');
+                showStep(1);
+            }
+        });
+
+        function showAnalysisResult(structure) {
+            document.getElementById('analysisInProgress').style.display = 'none';
+            document.getElementById('analysisResult').style.display = 'block';
+            document.getElementById('detectedTitle').textContent = structure.title || 'Document';
+
+            const sectionsListEl = document.getElementById('sectionsList');
+            sectionsListEl.innerHTML = '';
+            (structure.sections || []).forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = 'section-badge';
+                badge.textContent = s;
+                sectionsListEl.appendChild(badge);
+            });
+        }
+
+        // ── Back buttons ──
+        btnBackToUpload.addEventListener('click', () => showStep(1));
+        btnBackToAnalysis.addEventListener('click', () => showStep(2));
+
+        // ── Proceed to Form ──
+        btnProceedToForm.addEventListener('click', () => {
+            showStep(3);
+            // Pre-fill detected title
+            const fTitle = document.getElementById('fTitle');
+            if (!fTitle.value && extractedStructure?.title) {
+                fTitle.value = extractedStructure.title !== 'Document' ? extractedStructure.title : '';
+            }
+
+            // Populate the sections reminder
+            const sectionsListForm = document.getElementById('sectionsListForm');
+            sectionsListForm.innerHTML = '';
+            (extractedStructure?.sections || []).forEach(s => {
+                const badge = document.createElement('span');
+                badge.className = 'section-badge';
+                badge.textContent = s;
+                sectionsListForm.appendChild(badge);
+            });
+        });
+
+        // ── Generate Document ──
+        detailsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!extractedStructure) {
+                alert('No template structure found. Please analyze a template first.');
+                return;
+            }
+
+            const userDetails = {
+                title: document.getElementById('fTitle').value.trim(),
+                author: document.getElementById('fAuthor').value.trim(),
+                organization: document.getElementById('fOrg').value.trim(),
+                purpose: document.getElementById('fPurpose').value.trim(),
+                keyPoints: document.getElementById('fKeyPoints').value.trim(),
+                additionalInstructions: document.getElementById('fInstructions').value.trim()
+            };
+
+            generatedTitle = userDetails.title || extractedStructure.title || 'Generated Document';
+
+            emptyState.style.display = 'none';
+            outputContent.style.display = 'none';
+            loaderOverlay.classList.add('active');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/template-doc/generate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ templateStructure: extractedStructure, userDetails })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    outputContent.innerHTML = data.data.formattedHtml;
+                    outputTitle.textContent = generatedTitle;
+                    outputContent.style.display = 'block';
+                } else {
+                    alert('Generation failed: ' + data.error);
+                    emptyState.style.display = 'flex';
+                }
+            } catch (err) {
+                console.error('Generate error:', err);
+                alert('Failed to generate document. Please try again.');
+                emptyState.style.display = 'flex';
+            } finally {
+                loaderOverlay.classList.remove('active');
+            }
+        });
+
+        // ── Download ──
+        btnDownload.addEventListener('click', async () => {
+            if (!outputContent.innerHTML || outputContent.style.display === 'none') return;
+
+            const format = document.getElementById('downloadFormat').value;
+            const originalLabel = btnDownload.innerHTML;
+            btnDownload.innerHTML = 'Downloading…';
+            btnDownload.disabled = true;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/template-doc/download`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        html: outputContent.innerHTML,
+                        title: generatedTitle,
+                        format
+                    })
+                });
+
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${generatedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    alert(`Failed to download document as ${format.toUpperCase()}.`);
+                }
+            } catch (err) {
+                alert('Error downloading document.');
+            } finally {
+                btnDownload.innerHTML = originalLabel;
+                btnDownload.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

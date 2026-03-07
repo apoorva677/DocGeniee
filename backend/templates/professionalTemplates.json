@@ -1,0 +1,78 @@
+{
+  "Resume": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Full Name", "type": "text", "required": true },
+      { "name": "skills", "label": "Skills (comma separated)", "type": "textarea", "required": true },
+      { "name": "experience", "label": "Work Experience", "type": "textarea", "required": true },
+      { "name": "education", "label": "Education Details", "type": "textarea", "required": true },
+      { "name": "projects", "label": "Key Projects", "type": "textarea", "required": false },
+      { "name": "instructions", "label": "Additional Instructions / Summary", "type": "textarea", "required": false }
+    ],
+    "structure": ["Header", "Professional Summary", "Skills", "Work Experience", "Education", "Projects"]
+  },
+  "Cover Letter": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Your Name", "type": "text", "required": true },
+      { "name": "organization", "label": "Company Applying To", "type": "text", "required": true },
+      { "name": "purpose", "label": "Position Applying For", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Strengths / Relevance", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Header", "Salutation", "Introduction", "Body Paragraph(s)", "Conclusion", "Sign-off"]
+  },
+  "Business Proposal": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Your Name / Company", "type": "text", "required": true },
+      { "name": "organization", "label": "Target Client / Company", "type": "text", "required": true },
+      { "name": "purpose", "label": "Objective of Proposal", "type": "text", "required": true },
+      { "name": "key_points", "label": "Proposed Solution & Budget", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title Page", "Executive Summary", "Problem Statement", "Proposed Solution", "Pricing/Budget", "Timeline", "Conclusion"]
+  },
+  "Project Proposal": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Project Lead Name", "type": "text", "required": true },
+      { "name": "purpose", "label": "Project Objective", "type": "text", "required": true },
+      { "name": "key_points", "label": "Scope & Deliverables", "type": "textarea", "required": true },
+      { "name": "duration", "label": "Estimated Timeline", "type": "text", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Introduction", "Project Scope", "Deliverables", "Timeline", "Resource Requirements", "Conclusion"]
+  },
+  "Technical Documentation": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Author / Engineer", "type": "text", "required": true },
+      { "name": "purpose", "label": "System / Product Being Documented", "type": "text", "required": true },
+      { "name": "key_points", "label": "Technical Specs / Overview", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Overview", "System Architecture", "Installation/Setup", "Usage/API", "Troubleshooting", "Conclusion"]
+  },
+  "Meeting Minutes": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Minute Taker Name", "type": "text", "required": true },
+      { "name": "organization", "label": "Department / Team", "type": "text", "required": true },
+      { "name": "key_points", "label": "Key Discussions & Decisions", "type": "textarea", "required": true },
+      { "name": "projects", "label": "Action Items", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Meeting Details", "Attendees", "Discussions", "Decisions Made", "Action Items", "Next Meeting"]
+  },
+  "Product Documentation": {
+    "fields": [
+      { "name": "title", "label": "Document Title", "type": "text", "required": true },
+      { "name": "author", "label": "Product Manager / Team", "type": "text", "required": true },
+      { "name": "purpose", "label": "Product Description", "type": "text", "required": true },
+      { "name": "key_points", "label": "Features & Benefits", "type": "textarea", "required": true },
+      { "name": "instructions", "label": "Additional Instructions", "type": "textarea", "required": false }
+    ],
+    "structure": ["Title", "Product Overview", "Features", "Target Audience", "Use Cases", "Technical Requirements", "Conclusion"]
+  }
+}
