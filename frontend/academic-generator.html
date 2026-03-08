@@ -199,13 +199,6 @@
         let availableTemplatesData = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Check Auth
-            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
-            if (!userData) {
-                window.location.href = 'login.html';
-                return;
-            }
-
             const docTypeGrid = document.getElementById('docTypeGrid');
             const selectionStep = document.getElementById('selectionStep');
             const templateStep = document.getElementById('templateStep');
@@ -377,8 +370,7 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             documentType: currentSelectedType,
-                            fieldData,
-                            userId: userData.id
+                            fieldData
                         })
                     });
 
@@ -409,7 +401,7 @@
                 document.getElementById('btnSave').innerHTML = 'Downloading...';
                 
                 try {
-                    const response = await fetch('http://localhost:5000/api/document/download', {
+                    const response = await fetch('http://127.0.0.1:5000/api/downloads/download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({

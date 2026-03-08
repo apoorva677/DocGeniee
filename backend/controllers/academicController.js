@@ -1,9 +1,8 @@
 const documentGenerationService = require('../services/documentGenerationService');
-const { supabaseAdmin } = require('../config/supabase');
 
 exports.generateAcademicDocument = async (req, res) => {
     try {
-        const { documentType, fieldData, userId } = req.body;
+        const { documentType, fieldData } = req.body;
 
         if (!documentType || !fieldData) {
             return res.status(400).json({ 
@@ -17,32 +16,6 @@ exports.generateAcademicDocument = async (req, res) => {
             documentType,
             fieldData
         });
-
-        // Save to Supabase if userId is provided
-        if (userId && supabaseAdmin) {
-            try {
-                // New 'documents' table
-                await supabaseAdmin.from('documents').insert([{
-                    user_id: userId,
-                    title: fieldData.title || documentType,
-                    document_type: documentType,
-                    source: 'Academic Generator',
-                    content: result.formattedHtml
-                }]);
-
-                // Original table
-                await supabaseAdmin.from('generated_documents').insert([{
-                    user_id: userId,
-                    title: fieldData.title || documentType,
-                    category: 'academic',
-                    doc_type: documentType,
-                    content_raw: result.rawHtml,
-                    content_formatted: result.formattedHtml
-                }]);
-            } catch (dbError) {
-                console.error('[Supabase Save Error - Academic]', dbError);
-            }
-        }
 
         res.status(200).json({
             success: true,

@@ -20,7 +20,7 @@ function slugToTitle(slug) {
  */
 exports.formatContent = async (req, res) => {
     try {
-        let { title, content, userId, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle } = req.body;
+        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle } = req.body;
 
         if (!content) {
             return res.status(400).json({ success: false, message: 'Content is required for formatting' });
@@ -37,40 +37,14 @@ exports.formatContent = async (req, res) => {
         const formattedContent = await formattingService.format({
             title,
             content: refinedText,
-            formattingType: detectedType,
+            formattingType: detectedType, // Use AI detection result
             alignment,
             paraSpacing: spacing,
+            fontSize,
+            boldHeadings,
             lineSpacing,
             fontStyle
         });
-
-        // 3. Save to Supabase History if userId is provided
-        if (userId && supabaseAdmin) {
-            // New 'documents' table
-            await supabaseAdmin
-                .from('documents')
-                .insert([{
-                    user_id: userId,
-                    title: title || 'Untitled Document',
-                    document_type: detectedType,
-                    source: 'Formatter',
-                    content: formattedContent
-                }]);
-
-            // Original table
-            const { error: dbError } = await supabaseAdmin
-                .from('generated_documents')
-                .insert([{
-                    user_id: userId,
-                    title: title || 'Untitled Document',
-                    category: 'Formatting',
-                    doc_type: detectedType,
-                    content_raw: content,
-                    content_formatted: formattedContent
-                }]);
-            
-            if (dbError) console.error('[DB Error]: Failed to save document:', dbError);
-        }
 
         console.log('[Formatting Controller]: Formatting completed successfully');
         res.json({
@@ -89,16 +63,16 @@ exports.formatContent = async (req, res) => {
  */
 exports.formatUploadedDocument = async (req, res) => {
     const file = req.file;
-    
+
     try {
-        let { title, userId, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, formattingInstructions } = req.body;
+        let { title, mode, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, formattingInstructions } = req.body;
 
         if (!file) {
             return res.status(400).json({ success: false, message: 'Document file is required' });
         }
 
         console.log('Document uploaded');
-        
+
         // 1. Extract text from the doc
         const extractedText = await documentParser.parseDocument(file.path, file.mimetype);
         console.log('Text extracted successfully');
@@ -117,7 +91,8 @@ exports.formatUploadedDocument = async (req, res) => {
         const formattedContent = await formattingService.format({
             title: cleanTitle,
             content: refinedText,
-            formattingType: detectedType,
+            mode: mode || 'auto',
+            formattingType: detectedType, // AI Detected Type
             alignment,
             paraSpacing: spacing,
             headingStyle,
@@ -136,7 +111,7 @@ exports.formatUploadedDocument = async (req, res) => {
                 .from('documents')
                 .insert([{
                     user_id: userId,
-                    title: cleanTitle,
+                    title: title || file.originalname.split('.')[0],
                     document_type: detectedType,
                     source: 'Formatter',
                     content: formattedContent
@@ -147,18 +122,18 @@ exports.formatUploadedDocument = async (req, res) => {
                 .from('generated_documents')
                 .insert([{
                     user_id: userId,
-                    title: cleanTitle,
+                    title: title || file.originalname.split('.')[0],
                     category: 'Formatting',
                     doc_type: detectedType,
                     content_raw: extractedText,
                     content_formatted: formattedContent
                 }]);
-            
+
             if (dbError) console.error('[DB Error]: Failed to save document:', dbError);
         }
 
         console.log('Formatted document returned');
-        
+
         res.json({
             success: true,
             detectedDocumentType: detectedType,

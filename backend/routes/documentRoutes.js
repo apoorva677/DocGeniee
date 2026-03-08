@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const documentController = require('../controllers/documentController');
 
-// Route to export document (Original)
+// Route to export document
 router.post('/export', documentController.exportDocument);
 
 // CRUD Routes for Documents History

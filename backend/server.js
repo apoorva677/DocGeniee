@@ -23,7 +23,6 @@ const downloadRoutes = require('./routes/downloadRoutes');
 const templateDocumentRoutes = require('./routes/templateDocumentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const formattingRoutes = require('./routes/formattingRoutes');
-const dbRoutes = require('./routes/dbRoutes');
 
 // Use Routes
 app.use('/api/ai-content', aiContentRoutes);
@@ -33,11 +32,11 @@ app.use('/api/academic-doc', academicDocRoutes);
 app.use('/api/data-report', dataReportRoutes);
 app.use('/api/templates', templateRoutes);
 app.use('/api/documents', documentRoutes);
-app.use('/api/downloads', downloadRoutes);
+app.use('/api/downloads', downloadRoutes); // Standardized from /api/document or others
 app.use('/api/template-doc', templateDocumentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/formatting', formattingRoutes);
-app.use('/api/db', dbRoutes);
+
 
 // Base route for health check
 app.get('/api/health', (req, res) => {

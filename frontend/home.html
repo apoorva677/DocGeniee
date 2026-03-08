@@ -7,14 +7,16 @@
     <title>Home - DOC GENIE</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
         /* Home specific clean styles */
         body {
             background: var(--bg-dark);
         }
-        
+
         .home-container {
             padding-top: 100px;
             padding-bottom: 60px;
@@ -27,7 +29,7 @@
             align-items: center;
             gap: 16px;
         }
-        
+
         .icon-btn {
             background: transparent;
             border: none;
@@ -57,7 +59,7 @@
             visibility: hidden;
             transform: translateY(-10px);
             transition: var(--transition-smooth);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             z-index: 100;
         }
 
@@ -77,7 +79,7 @@
         }
 
         .dropdown-item:hover {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             color: var(--text-primary);
         }
 
@@ -127,7 +129,7 @@
             transform: translateY(-5px);
             border-color: var(--border-color-hover);
             background: var(--bg-card-hover);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
         .hf-icon {
@@ -172,7 +174,7 @@
 
         /* About Section */
         .about-section {
-            background: rgba(255,255,255,0.02);
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 40px;
@@ -193,7 +195,6 @@
             font-size: 15px;
             line-height: 1.7;
         }
-
     </style>
 </head>
 
@@ -211,43 +212,53 @@
                 <a href="dashboard.html" style="text-decoration: none;">
                     <div class="logo">
                         <div class="logo-icon">
-                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
-                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2"
+                                    stroke-linejoin="round" />
                                 <circle cx="16" cy="16" r="3" fill="white" />
                             </svg>
                         </div>
                         <span class="logo-text">DOC GENIE</span>
                     </div>
                 </a>
-                
+
                 <div class="nav-profile">
                     <!-- Settings Icon -->
                     <a href="settings.html" class="icon-btn" aria-label="Settings" title="Settings">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
-                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
                         </svg>
                     </a>
 
                     <!-- Profile Avatar & Dropdown -->
                     <div style="position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <div id="navAvatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                        <div id="navAvatar"
+                            style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
                             US
                         </div>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-secondary);">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            style="color: var(--text-secondary);">
                             <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
-                        
+
                         <div class="profile-dropdown">
-                            <div style="padding: 12px 20px 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
+                            <div
+                                style="padding: 12px 20px 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
                                 <div id="navDropName" style="font-weight: 600; font-size: 14px;">User</div>
                                 <div id="navDropEmail" style="font-size: 12px; color: var(--text-secondary);"></div>
                             </div>
                             <a href="profile.html" class="dropdown-item">👤 View Profile</a>
                             <a href="settings.html" class="dropdown-item">⚙️ Settings</a>
                             <div style="height: 1px; background: var(--border-color); margin: 4px 0;"></div>
-                            <a href="#" class="dropdown-item" style="color: #ef4444;" onclick="sessionStorage.clear(); window.location.href='login.html';">🚪 Logout</a>
+                            <a href="#" class="dropdown-item" style="color: #ef4444;"
+                                onclick="sessionStorage.clear(); window.location.href='login.html';">🚪 Logout</a>
                         </div>
                     </div>
                 </div>
@@ -256,13 +267,15 @@
     </nav>
 
     <div class="container home-container" style="position: relative; z-index: 1;">
-        
+
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h1 class="welcome-title" id="welcomeUser">Welcome to DOC GENIE</h1>
-            <p class="welcome-subtitle">An AI powered platform that automatically generates professional documents using structured input and intelligent formatting.</p>
-            <a href="professional-generator.html" class="btn btn-primary">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <h1 class="welcome-title">Welcome to DOC GENIE</h1>
+            <p class="welcome-subtitle">An AI powered platform that automatically generates professional documents using
+                structured input and intelligent formatting.</p>
+            <a href="#" class="btn btn-primary">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
                 </svg>
@@ -270,91 +283,146 @@
             </a>
         </div>
 
-        <!-- Recent Activity Section -->
-        <div id="recentActivitySection" style="margin-bottom: 60px; display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin: 0;">Recent Activity</h2>
-                <a href="dashboard.html" style="color: var(--primary-600); font-weight: 600; text-decoration: none; font-size: 14px;">View All history →</a>
-            </div>
-            <div id="documentsList" class="home-features-grid" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
-                <!-- Documents will be injected here -->
-            </div>
-        </div>
-
         <!-- Feature Grid -->
-        <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 24px;">Core Features</h2>
+        <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 24px;">Core
+            Features</h2>
         <div class="home-features-grid">
-            
+
             <a href="professional-generator.html" class="home-feature-card">
                 <div class="hf-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Professional Document Generator</h3>
                 <p class="hf-desc">Generate resumes, business proposals, and professional documents.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
             <a href="legal-generator.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #ec4899; background: rgba(236,72,153,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Legal Document Generator</h3>
                 <p class="hf-desc">Create legal agreements such as NDAs and service contracts.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
             <a href="academic-generator.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #8b5cf6; background: rgba(139,92,246,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Academic Document Generator</h3>
                 <p class="hf-desc">Generate academic reports, assignments, and research papers.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
             <a href="#" class="home-feature-card" onclick="openStreamlitDirectly()">
                 <div class="hf-icon" style="color: #10b981; background: rgba(16,185,129,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Data Analysis</h3>
                 <p class="hf-desc">Open IIT JEE seat allocation analysis system.</p>
-                <div class="hf-btn">Open <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Open <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
             <a href="template-document-generator.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #f59e0b; background: rgba(245,158,11,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Template Based Document Generator</h3>
                 <p class="hf-desc">Upload your own template or example and generate a matching document.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
             <a href="ai-content-generator.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #3b82f6; background: rgba(59,130,246,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                    </svg>
                 </div>
                 <h3 class="hf-title">AI Content Generator</h3>
                 <p class="hf-desc">Automatically generate content sections using artificial intelligence.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
             <a href="intelligent-formatting.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #06b6d4; background: rgba(6,182,212,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"></polyline><line x1="9" y1="20" x2="15" y2="20"></line><line x1="12" y1="4" x2="12" y2="20"></line></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="4 7 4 4 20 4 20 7"></polyline>
+                        <line x1="9" y1="20" x2="15" y2="20"></line>
+                        <line x1="12" y1="4" x2="12" y2="20"></line>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Intelligent Formatting Engine</h3>
                 <p class="hf-desc">Apply consistent formatting such as headings, spacing, and alignment.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
-            <a href="documents.html" class="home-feature-card">
+            <a href="#" class="home-feature-card">
                 <div class="hf-icon" style="color: #eab308; background: rgba(234,179,8,0.1);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><path d="M14 2v6h6"></path><path d="M2 15h10"></path><path d="M2 18h10"></path></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path>
+                        <path d="M14 2v6h6"></path>
+                        <path d="M2 15h10"></path>
+                        <path d="M2 18h10"></path>
+                    </svg>
                 </div>
                 <h3 class="hf-title">Documents</h3>
                 <p class="hf-desc">View and manage your previously generated or edited documents.</p>
-                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg></div>
             </a>
 
 
@@ -365,23 +433,29 @@
             <h2 class="about-title">About DOC GENIE</h2>
             <p class="about-text">
                 DOC GENIE is an AI powered document automation platform designed to simplify document creation.<br><br>
-                Instead of manually writing documents, users provide structured input and the system automatically generates a complete document with professional formatting.<br><br>
-                The platform supports professional documents, legal documents, academic reports, and data driven reports.
+                Instead of manually writing documents, users provide structured input and the system automatically
+                generates a complete document with professional formatting.<br><br>
+                The platform supports professional documents, legal documents, academic reports, and data driven
+                reports.
             </p>
         </div>
 
     </div>
 
     <!-- Footer -->
-    <footer class="footer" style="padding-top: 40px; padding-bottom: 20px; background: var(--bg-darker); border-top: 1px solid var(--border-color);">
+    <footer class="footer"
+        style="padding-top: 40px; padding-bottom: 20px; background: var(--bg-darker); border-top: 1px solid var(--border-color);">
         <div class="container">
-            <div class="footer-content" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+            <div class="footer-content"
+                style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
                 <div class="footer-brand" style="margin-bottom: 0;">
                     <div class="logo">
                         <div class="logo-icon">
-                            <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg width="24" height="24" viewBox="0 0 32 32" fill="none"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <rect width="32" height="32" rx="8" fill="url(#footer-logo-gradient)" />
-                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2"
+                                    stroke-linejoin="round" />
                                 <circle cx="16" cy="16" r="3" fill="white" />
                                 <defs>
                                     <linearGradient id="footer-logo-gradient" x1="0" y1="0" x2="32" y2="32">
@@ -393,9 +467,10 @@
                         </div>
                         <span class="logo-text" style="font-size: 16px;">DOC GENIE</span>
                     </div>
-                    <p class="footer-tagline" style="margin-top: 8px; font-size: 13px;">AI Document Generation Platform</p>
+                    <p class="footer-tagline" style="margin-top: 8px; font-size: 13px;">AI Document Generation Platform
+                    </p>
                 </div>
-                
+
                 <div class="footer-links" style="display: flex; gap: 24px;">
                     <a href="dashboard.html" class="nav-link">Dashboard</a>
                     <a href="home.html" class="nav-link">Home</a>
@@ -418,7 +493,7 @@
 
             // Update UI
             document.getElementById('welcomeUser').textContent = `Welcome back, ${userData.user_metadata?.full_name || 'Genie'}`;
-            
+
             // Update nav avatar
             const name = userData.user_metadata?.full_name || 'User';
             const navAvatar = document.getElementById('navAvatar');
@@ -427,7 +502,7 @@
             if (navAvatar) navAvatar.textContent = name.charAt(0).toUpperCase();
             if (navDropName) navDropName.textContent = name;
             if (navDropEmail) navDropEmail.textContent = userData.email || '';
-            
+
             // Load Recent Documents from new endpoint
             fetch(`http://127.0.0.1:5000/api/documents?userId=${userData.id}`)
                 .then(res => res.json())
@@ -436,7 +511,7 @@
                         const list = document.getElementById('documentsList');
                         const section = document.getElementById('recentActivitySection');
                         section.style.display = 'block';
-                        
+
                         data.documents.slice(0, 3).forEach(doc => {
                             const card = document.createElement('div');
                             card.className = 'home-feature-card';
@@ -462,7 +537,7 @@
                     method: 'POST'
                 });
                 const data = await response.json();
-                
+
                 if (data.success) {
                     // Give it a small moment to initialize then open
                     setTimeout(() => {
@@ -479,6 +554,5 @@
         }
     </script>
 </body>
-</html>
-</body>
+
 </html>
