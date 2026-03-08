@@ -18,13 +18,13 @@ const legalDocRoutes = require('./routes/legalDocRoutes');
 const academicDocRoutes = require('./routes/academicDocRoutes');
 const dataReportRoutes = require('./routes/dataReportRoutes');
 const templateRoutes = require('./routes/templateRoutes');
-const documentsRoutes = require('./routes/documentsRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const downloadRoutes = require('./routes/downloadRoutes');
 const templateDocumentRoutes = require('./routes/templateDocumentRoutes');
 const authRoutes = require('./routes/authRoutes');
 const formattingRoutes = require('./routes/formattingRoutes');
 const dataAnalyticsRoutes = require('./routes/dataAnalyticsRoutes');
+const profileRoutes = require('./routes/profileRoutes');
 
 // Use Routes
 app.use('/api/ai-content', aiContentRoutes);
@@ -34,13 +34,14 @@ app.use('/api/academic-doc', academicDocRoutes);
 app.use('/api/data-report', dataReportRoutes);
 app.use('/api/data-analytics', dataAnalyticsRoutes);
 app.use('/api/templates', templateRoutes);
-app.use('/api/documents', documentsRoutes);
-app.use('/api/document-export', documentRoutes); // Renamed to avoid alias conflict if needed, or kept separate
-app.use('/api/document', downloadRoutes); // Standardized endpoint for document downloads
-app.use('/api/downloads', downloadRoutes); // Standardized from /api/document or others
+app.use('/api/documents', documentRoutes);
+app.use('/api/document-export', documentRoutes); 
+app.use('/api/document', downloadRoutes); 
+app.use('/api/downloads', downloadRoutes); 
 app.use('/api/template-doc', templateDocumentRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/formatting', formattingRoutes);
+app.use('/api/profile', profileRoutes);
 
 
 // Base route for health check

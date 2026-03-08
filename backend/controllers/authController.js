@@ -1,10 +1,10 @@
-const userStorage = require('../utils/userStorage');
+const { supabase } = require('../config/supabase');
 
 /**
  * POST /api/auth/signup
  * Body: { name, email, password }
  */
-exports.signup = (req, res) => {
+exports.signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -12,28 +12,33 @@ exports.signup = (req, res) => {
             return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
         }
 
-        // Check if user already exists
-        const existing = userStorage.findUserByEmail(email);
-        if (existing) {
-            return res.status(409).json({ success: false, error: 'User already exists.' });
+        // SignUp with Supabase
+        const { data, error } = await supabase.auth.signUp({
+            email: email.trim(),
+            password,
+            options: {
+                data: { full_name: name.trim() }
+            }
+        });
+
+        if (error) {
+            console.error('[Supabase Signup Error]:', error.message);
+            return res.status(400).json({ success: false, error: error.message });
         }
 
-        // Create new user
-        const newUser = {
-            id: userStorage.getNextId(),
-            name: name.trim(),
-            email: email.trim().toLowerCase(),
-            password: password  // Plain text for prototype — replace with bcrypt for production
-        };
-
-        userStorage.addUser(newUser);
-
-        console.log(`[Auth] New user registered: ${newUser.email}`);
+        const user = data.user;
+        console.log(`[Auth] Supabase signup successful: ${user.email}`);
 
         return res.status(201).json({
             success: true,
-            message: 'Account created successfully. Please log in.',
-            user: { id: newUser.id, name: newUser.name, email: newUser.email }
+            message: 'Account created successfully. Please check your email for verification if enabled.',
+            user: { 
+                id: user.id, 
+                name: user.user_metadata?.full_name || name, 
+                email: user.email,
+                created_at: user.created_at,
+                user_metadata: user.user_metadata
+            }
         });
 
     } catch (err) {
@@ -46,7 +51,7 @@ exports.signup = (req, res) => {
  * POST /api/auth/login
  * Body: { email, password }
  */
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -54,27 +59,35 @@ exports.login = (req, res) => {
             return res.status(400).json({ success: false, error: 'Email and password are required.' });
         }
 
-        // Find the user
-        const user = userStorage.findUserByEmail(email);
-        if (!user) {
+        // Login with Supabase
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password
+        });
+
+        if (error) {
+            console.error('[Supabase Login Error]:', error.message);
             return res.status(401).json({ success: false, error: 'Invalid email or password.' });
         }
 
-        // Check password
-        if (user.password !== password) {
-            return res.status(401).json({ success: false, error: 'Invalid email or password.' });
-        }
-
-        console.log(`[Auth] Login successful: ${user.email}`);
+        const user = data.user;
+        console.log(`[Auth] Supabase login successful: ${user.email}`);
 
         return res.json({
             success: true,
             message: 'Login successful.',
-            user: { id: user.id, name: user.name, email: user.email }
+            session: data.session,
+            user: { 
+                id: user.id, 
+                name: user.user_metadata?.full_name || 'User', 
+                email: user.email,
+                created_at: user.created_at,
+                user_metadata: user.user_metadata
+            }
         });
 
     } catch (err) {
-        console.error('[Auth Login Error]:', err);
+        console.error('[Auth Login Error]:', err.message);
         return res.status(500).json({ success: false, error: 'Login failed. Please try again.' });
     }
 };

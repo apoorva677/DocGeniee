@@ -70,10 +70,17 @@ exports.getDocuments = async (req, res) => {
 exports.getDocumentById = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.headers['x-user-id'] || req.query.userId;
+        
+        if (!userId) {
+            return res.status(401).json({ success: false, error: 'User registration/login required.' });
+        }
+
         const { data, error } = await supabaseAdmin
             .from('documents')
             .select('*')
             .eq('id', id)
+            .eq('user_id', userId)
             .single();
 
         if (error) throw error;
@@ -88,7 +95,8 @@ exports.getDocumentById = async (req, res) => {
  */
 exports.saveDocument = async (req, res) => {
     try {
-        const { title, userId, documentType, source, content, htmlContent, format } = req.body;
+        const { title, userId: bodyUserId, documentType, source, content, htmlContent, format } = req.body;
+        const userId = bodyUserId || req.headers['x-user-id'];
 
         if (!userId || !title) {
             return res.status(400).json({ success: false, error: 'Title and UserID are required.' });
@@ -159,12 +167,18 @@ exports.saveDocument = async (req, res) => {
 exports.deleteDocument = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.headers['x-user-id'] || req.query.userId;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, error: 'User registration/login required.' });
+        }
 
         // Get document to find file_url for storage deletion
         const { data: doc, error: getError } = await supabaseAdmin
             .from('documents')
             .select('file_url, user_id')
             .eq('id', id)
+            .eq('user_id', userId)
             .single();
 
         if (getError) throw getError;
@@ -183,7 +197,8 @@ exports.deleteDocument = async (req, res) => {
         const { error } = await supabaseAdmin
             .from('documents')
             .delete()
-            .eq('id', id);
+            .eq('id', id)
+            .eq('user_id', userId);
 
         if (error) throw error;
         res.json({ success: true, message: 'Document deleted successfully.' });
@@ -199,12 +214,18 @@ exports.deleteDocument = async (req, res) => {
 exports.improveDocument = async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.headers['x-user-id'] || req.query.userId;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, error: 'User registration/login required.' });
+        }
 
         // Fetch document
         const { data: doc, error: fetchError } = await supabaseAdmin
             .from('documents')
             .select('*')
             .eq('id', id)
+            .eq('user_id', userId)
             .single();
 
         if (fetchError || !doc) {

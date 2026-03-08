@@ -9,22 +9,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        :root { --sidebar-width: 280px; }
-        body { background: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
+        body { background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; }
 
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-width); background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; z-index: 100; }
-        .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 40px; }
-        .sidebar-logo { margin-bottom: 50px; }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 10px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-item:hover, .nav-item.active { background: rgba(99,102,241,0.1); color: var(--primary-600); }
-        .nav-item svg { width: 20px; height: 20px; }
-        .logout-btn { margin-top: auto; color: #ef4444; }
-        .logout-btn:hover { background: rgba(239,68,68,0.1); }
-
-        /* Header */
-        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+        .profile-container {
+            padding: 120px 20px 60px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
 
         /* Profile Hero */
         .profile-hero {
@@ -86,244 +77,294 @@
         }
         .form-input:focus { outline: none; border-color: var(--primary-600); box-shadow: 0 0 0 2px rgba(99,102,241,0.1); }
         .form-input:disabled { opacity: 0.5; cursor: not-allowed; }
-        .save-btn { margin-top: 24px; }
+        
+        .btn { padding: 12px 24px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: var(--transition-smooth); border: none; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); color: white; }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99,102,241,0.3); }
 
-        /* Activity List */
-        .activity-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
-        .activity-item:last-child { border-bottom: none; }
-        .activity-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(99,102,241,0.1); color: var(--primary-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .activity-detail { flex: 1; }
-        .activity-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
-        .activity-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+        /* Icon Button styling from home.html */
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-width: 180px;
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition-smooth);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .nav-profile:hover .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect width="32" height="32" rx="8" fill="url(#sg)"/>
-                        <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2"/>
-                        <circle cx="16" cy="16" r="3" fill="white"/>
-                        <defs><linearGradient id="sg"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
-                    </svg>
+    <nav class="navbar" style="background: var(--bg-darker); border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div class="nav-content">
+                <a href="home.html" style="text-decoration: none;">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
+                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <circle cx="16" cy="16" r="3" fill="white" />
+                                <defs>
+                                    <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                                        <stop offset="0%" stop-color="#6366f1" />
+                                        <stop offset="100%" stop-color="#8b5cf6" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="logo-text">DOC GENIE</span>
+                    </div>
+                </a>
+                
+                <div class="nav-links" style="display: flex; gap: 32px;">
+                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="documents.html" class="nav-link">Documents</a>
                 </div>
-                <span class="logo-text">DOC GENIE</span>
+
+                <div class="nav-profile">
+                    <a href="settings.html" class="icon-btn" title="Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </a>
+                    <div style="position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <div id="navAvatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: white;">US</div>
+                        <div class="profile-dropdown">
+                            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+                                <div id="navDropName" style="font-weight: 600; color: var(--text-primary); font-size: 14px;">User</div>
+                                <div id="navDropEmail" style="color: var(--text-tertiary); font-size: 12px;">user@example.com</div>
+                            </div>
+                            <a href="profile.html" class="dropdown-item">My Profile</a>
+                            <a href="settings.html" class="dropdown-item">Settings</a>
+                            <div style="border-top: 1px solid var(--border-color); margin-top: 4px;"></div>
+                            <a href="#" class="dropdown-item" onclick="logout()" style="color: #ef4444;">Logout</a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <nav class="sidebar-nav">
-            <a href="home.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Home
-            </a>
-            <a href="documents.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                My Documents
-            </a>
-            <a href="profile.html" class="nav-item active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                My Profile
-            </a>
-            <a href="settings.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                Settings
-            </a>
-            <a href="#" class="nav-item logout-btn" onclick="doLogout()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                Logout
-            </a>
-        </nav>
-    </aside>
+    </nav>
 
-    <!-- Main -->
-    <main class="main-content">
-        <div class="page-header">
-            <div>
-                <h1 style="font-family: var(--font-display); font-size: 28px;">My Profile</h1>
-                <p style="color: var(--text-secondary);">Manage your personal information and account details</p>
-            </div>
-        </div>
-
-        <!-- Profile Hero -->
+    <div class="profile-container">
+        <!-- Hero Section -->
         <div class="profile-hero">
-            <div class="avatar-large" id="avatarLarge">U</div>
+            <div class="avatar-large" id="profileAvatarLarge">U</div>
             <div class="profile-info">
-                <h1 id="heroName">Loading...</h1>
-                <div class="email" id="heroEmail">loading@example.com</div>
-                <div class="profile-badge">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-                    Active Account
-                </div>
-            </div>
-            <div style="margin-left: auto; text-align: right;">
-                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Member since</div>
-                <div style="font-weight: 600;" id="memberSince">—</div>
+                <h1 id="profileName">Loading...</h1>
+                <div class="email" id="profileEmail">...</div>
+                <span class="profile-badge">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    Verified Account
+                </span>
             </div>
         </div>
 
         <!-- Stats -->
         <div class="stats-bar">
             <div class="stat-card">
-                <div class="stat-value" id="statDocs">—</div>
-                <div class="stat-label">Documents Created</div>
+                <div class="stat-value" id="countDocs">0</div>
+                <div class="stat-label">Total Documents</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="statFormatted">—</div>
-                <div class="stat-label">Documents Formatted</div>
+                <div class="stat-value">Free</div>
+                <div class="stat-label">Current Plan</div>
             </div>
             <div class="stat-card">
-                <div class="stat-value" id="statImproved">—</div>
-                <div class="stat-label">AI Improvements</div>
+                <div class="stat-value" id="memberSince">2024</div>
+                <div class="stat-label">Member Since</div>
             </div>
         </div>
 
-        <!-- Edit Profile -->
+        <!-- Card: Personal Information -->
         <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Edit Profile
-            </div>
-            <div class="form-grid">
-                <div class="form-group">
-                    <label class="form-label">Full Name</label>
-                    <input type="text" id="editName" class="form-input" placeholder="Your name">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                Personal Information
+            </h2>
+            <form id="profileForm">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label class="form-label">Full Name</label>
+                        <input type="text" id="inputName" class="form-input" placeholder="Your Name">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email Address</label>
+                        <input type="email" id="inputEmail" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Phone Number</label>
+                        <input type="text" id="inputPhone" class="form-input" placeholder="+1 (555) 000-0000">
+                    </div>
+                    <div class="form-group full">
+                        <label class="form-label">Bio / Professional Title</label>
+                        <input type="text" id="inputTitle" class="form-input" placeholder="e.g. Senior Research Analyst">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" id="editEmail" class="form-input" disabled placeholder="your@email.com">
-                </div>
-                <div class="form-group full">
-                    <label class="form-label">Bio (optional)</label>
-                    <input type="text" id="editBio" class="form-input" placeholder="Tell us a little about yourself...">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Organization (optional)</label>
-                    <input type="text" id="editOrg" class="form-input" placeholder="Company or institution">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Role (optional)</label>
-                    <input type="text" id="editRole" class="form-input" placeholder="Your job title or role">
-                </div>
-            </div>
-            <div class="save-btn">
-                <button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
-                    Save Changes
-                </button>
-            </div>
+                <button type="submit" class="btn btn-primary save-btn">Save Changes</button>
+            </form>
         </div>
+    </div>
 
-        <!-- Recent Activity -->
-        <div class="card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-                Recent Document Activity
-            </div>
-            <div id="activityList">
-                <p style="color: var(--text-secondary); font-size: 14px;">Loading activity...</p>
-            </div>
-        </div>
-    </main>
-
+    <script src="js/docsHelper.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
-            if (!userData) { window.location.href = 'login.html'; return; }
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
 
-            const name = userData.user_metadata?.full_name || 'Genie';
+            const name = userData.user_metadata?.full_name || 'User';
             const email = userData.email || '';
-            const createdAt = userData.created_at ? new Date(userData.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
 
-            // Hero
-            document.getElementById('heroName').textContent = name;
-            document.getElementById('heroEmail').textContent = email;
-            document.getElementById('avatarLarge').textContent = name.charAt(0).toUpperCase();
-            document.getElementById('memberSince').textContent = createdAt;
+            // Update Navbar
+            document.getElementById('navAvatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('navDropName').textContent = name;
+            document.getElementById('navDropEmail').textContent = email;
 
-            // Form pre-fill
-            document.getElementById('editName').value = name;
-            document.getElementById('editEmail').value = email;
+            // Update Hero
+            document.getElementById('profileAvatarLarge').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('profileName').textContent = name;
+            document.getElementById('profileEmail').textContent = email;
 
-            // Load saved profile extras from localStorage
-            const extras = JSON.parse(localStorage.getItem('docgenie_profile_extras') || '{}');
-            if (extras.bio) document.getElementById('editBio').value = extras.bio;
-            if (extras.org) document.getElementById('editOrg').value = extras.org;
-            if (extras.role) document.getElementById('editRole').value = extras.role;
-
-            // Load documents for stats + activity
-            fetch(`http://127.0.0.1:5000/api/documents?userId=${userData.id}`)
-                .then(r => r.json())
-                .then(data => {
-                    if (data.success) {
-                        const docs = data.documents;
-                        const formatted = docs.filter(d => d.source === 'Formatter').length;
-                        const improved = docs.filter(d => d.source === 'AI Improver').length;
-                        document.getElementById('statDocs').textContent = docs.length;
-                        document.getElementById('statFormatted').textContent = formatted;
-                        document.getElementById('statImproved').textContent = improved;
-
-                        const list = document.getElementById('activityList');
-                        if (docs.length === 0) {
-                            list.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;">No documents yet. Start creating!</p>';
-                            return;
-                        }
-                        list.innerHTML = docs.slice(0, 6).map(doc => `
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                                </div>
-                                <div class="activity-detail">
-                                    <div class="activity-title">${doc.title}</div>
-                                    <div class="activity-meta">${doc.document_type || 'General'} · ${doc.source || 'Doc Genie'} · ${new Date(doc.created_at).toLocaleDateString()}</div>
-                                </div>
-                            </div>
-                        `).join('');
-                    }
-                })
-                .catch(() => {
-                    document.getElementById('statDocs').textContent = '—';
-                    document.getElementById('statFormatted').textContent = '—';
-                    document.getElementById('statImproved').textContent = '—';
+            // Update Form
+            document.getElementById('inputName').value = name;
+            document.getElementById('inputEmail').value = email;
+            
+            // Load saved profile data from Supabase
+            try {
+                const profileRes = await fetch('http://localhost:5000/api/profile', {
+                    headers: { 'x-user-id': userData.id }
                 });
-        });
+                const profileData = await profileRes.json();
+                
+                if (profileData.success && profileData.profile) {
+                    const profile = profileData.profile;
+                    document.getElementById('inputPhone').value = profile.phone || '';
+                    document.getElementById('inputTitle').value = profile.professional_title || '';
+                    if (profile.full_name) {
+                        const displayName = profile.full_name;
+                        document.getElementById('profileName').textContent = displayName;
+                        document.getElementById('inputName').value = displayName;
+                        
+                        // Update avatars with correct initial
+                        const initial = displayName.charAt(0).toUpperCase();
+                        document.getElementById('navAvatar').textContent = initial;
+                        document.getElementById('profileAvatarLarge').textContent = initial;
+                        document.getElementById('navDropName').textContent = displayName;
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading profile from Supabase:', err);
+            }
 
-        function saveProfile() {
-            const btn = document.getElementById('saveProfileBtn');
-            btn.textContent = 'Saving...';
-            btn.disabled = true;
+            // Get doc count
+            try {
+                const res = await fetch('http://localhost:5000/api/documents', {
+                    headers: { 'x-user-id': userData.id }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('countDocs').textContent = data.documents.length;
+                }
+            } catch (err) {
+                console.error(err);
+            }
 
-            const extras = {
-                bio: document.getElementById('editBio').value,
-                org: document.getElementById('editOrg').value,
-                role: document.getElementById('editRole').value
-            };
-            localStorage.setItem('docgenie_profile_extras', JSON.stringify(extras));
-
-            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
-            if (userData) {
-                const newName = document.getElementById('editName').value.trim();
-                if (newName && userData.user_metadata) {
-                    userData.user_metadata.full_name = newName;
-                    sessionStorage.setItem('docgenie_user', JSON.stringify(userData));
-                    document.getElementById('heroName').textContent = newName;
-                    document.getElementById('avatarLarge').textContent = newName.charAt(0).toUpperCase();
+            // Set member since
+            if (userData.created_at) {
+                const createdDate = new Date(userData.created_at);
+                if (!isNaN(createdDate.getTime())) {
+                    document.getElementById('memberSince').textContent = createdDate.getFullYear();
                 }
             }
 
-            setTimeout(() => {
-                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
-                btn.style.background = '#10b981';
-                setTimeout(() => {
-                    btn.innerHTML = 'Save Changes';
-                    btn.style.background = '';
-                    btn.disabled = false;
-                }, 2000);
-            }, 600);
-        }
+            // Form Submit
+            document.getElementById('profileForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const updatedData = {
+                    fullName: document.getElementById('inputName').value,
+                    phone: document.getElementById('inputPhone').value,
+                    professionalTitle: document.getElementById('inputTitle').value
+                };
+                
+                try {
+                    const saveRes = await fetch('http://localhost:5000/api/profile', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-user-id': userData.id
+                        },
+                        body: JSON.stringify(updatedData)
+                    });
+                    const saveData = await saveRes.json();
+                    
+                    if (saveData.success) {
+                        alert('Profile updated successfully in Supabase!');
+                        // Update UI
+                        document.getElementById('profileName').textContent = updatedData.fullName;
+                        document.getElementById('navDropName').textContent = updatedData.fullName;
+                        document.getElementById('navAvatar').textContent = updatedData.fullName.charAt(0).toUpperCase();
+                    } else {
+                        alert('Failed to save profile: ' + (saveData.error || 'Unknown error'));
+                    }
+                } catch (err) {
+                    console.error('Error saving profile:', err);
+                    alert('Error saving profile.');
+                }
+            });
+        });
 
-        function doLogout() {
+        function logout() {
             sessionStorage.clear();
             window.location.href = 'login.html';
         }

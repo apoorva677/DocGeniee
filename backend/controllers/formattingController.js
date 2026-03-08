@@ -107,33 +107,7 @@ exports.formatUploadedDocument = async (req, res) => {
             documentTheme
         });
 
-        // 5. Save to Supabase History if userId is provided
-        if (userId && supabaseAdmin) {
-            // New table
-            await supabaseAdmin
-                .from('documents')
-                .insert([{
-                    user_id: userId,
-                    title: title || file.originalname.split('.')[0],
-                    document_type: detectedType,
-                    source: 'Formatter',
-                    content: formattedContent
-                }]);
 
-            // Original table
-            const { error: dbError } = await supabaseAdmin
-                .from('generated_documents')
-                .insert([{
-                    user_id: userId,
-                    title: title || file.originalname.split('.')[0],
-                    category: 'Formatting',
-                    doc_type: detectedType,
-                    content_raw: extractedText,
-                    content_formatted: formattedContent
-                }]);
-
-            if (dbError) console.error('[DB Error]: Failed to save document:', dbError);
-        }
 
         console.log('Formatted document returned');
 

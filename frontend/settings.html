@@ -9,453 +9,357 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-        :root { --sidebar-width: 280px; }
-        body { background: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
+        body { background: var(--bg-dark); color: var(--text-primary); min-height: 100vh; }
 
-        /* Sidebar */
-        .sidebar { width: var(--sidebar-width); background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; z-index: 100; }
-        .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 40px; max-width: 800px; }
-        .sidebar-logo { margin-bottom: 50px; }
-        .sidebar-nav { display: flex; flex-direction: column; gap: 10px; }
-        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
-        .nav-item:hover, .nav-item.active { background: rgba(99,102,241,0.1); color: var(--primary-600); }
-        .nav-item svg { width: 20px; height: 20px; }
-        .logout-btn-sidebar { margin-top: auto; color: #ef4444; }
-        .logout-btn-sidebar:hover { background: rgba(239,68,68,0.1); }
-
-        /* Cards */
-        .settings-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 28px 32px;
-            margin-bottom: 20px;
+        .settings-container {
+            padding: 120px 20px 60px;
+            max-width: 800px;
+            margin: 0 auto;
         }
-        .card-title {
-            font-family: var(--font-display);
-            font-size: 16px; font-weight: 600;
-            margin-bottom: 8px;
-            display: flex; align-items: center; gap: 10px;
-        }
-        .card-title svg { color: var(--primary-600); }
-        .card-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; }
-        .divider { height: 1px; background: var(--border-color); margin: 20px 0; }
-
-        /* Setting Row */
-        .setting-row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .setting-row:last-child { border-bottom: none; }
-        .setting-info .setting-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
-        .setting-info .setting-sub { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
-
-        /* Toggle Switch */
-        .toggle-wrap { display: flex; align-items: center; gap: 12px; }
-        .toggle-label { font-size: 12px; color: var(--text-secondary); }
-        .toggle {
-            position: relative; width: 48px; height: 26px; cursor: pointer;
-        }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute; inset: 0;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid var(--border-color);
-            border-radius: 100px;
-            transition: 0.3s;
-        }
-        .toggle-slider::before {
-            content: '';
-            position: absolute;
-            width: 18px; height: 18px;
-            left: 3px; top: 3px;
-            background: var(--text-secondary);
-            border-radius: 50%;
-            transition: 0.3s;
-        }
-        .toggle input:checked + .toggle-slider { background: var(--primary-600); border-color: var(--primary-600); }
-        .toggle input:checked + .toggle-slider::before { transform: translateX(22px); background: white; }
-
-        /* Theme selector */
-        .theme-options { display: flex; gap: 12px; margin-top: 16px; }
-        .theme-option {
-            flex: 1; padding: 16px; border-radius: 14px; border: 2px solid var(--border-color);
-            cursor: pointer; text-align: center; transition: var(--transition-smooth);
-        }
-        .theme-option:hover { border-color: var(--primary-600); }
-        .theme-option.active { border-color: var(--primary-600); background: rgba(99,102,241,0.08); }
-        .theme-option .theme-icon { font-size: 28px; margin-bottom: 8px; }
-        .theme-option .theme-name { font-size: 13px; font-weight: 600; }
-
-        /* Danger zone */
-        .danger-card { border-color: rgba(239,68,68,0.3); }
-        .danger-card .card-title { color: #ef4444; }
-        .danger-card .card-title svg { color: #ef4444; }
-        .danger-btn {
-            padding: 10px 20px; background: rgba(239,68,68,0.1); color: #ef4444;
-            border: 1px solid rgba(239,68,68,0.3); border-radius: 10px;
-            font-size: 13px; font-weight: 600; cursor: pointer; transition: var(--transition-smooth);
-        }
-        .danger-btn:hover { background: rgba(239,68,68,0.2); border-color: #ef4444; }
-
-        /* Logout button */
-        .logout-cta {
-            display: flex; align-items: center; gap: 12px;
-            padding: 18px 24px;
-            background: rgba(239,68,68,0.06);
-            border: 1px solid rgba(239,68,68,0.2);
-            border-radius: 16px;
-            width: 100%; cursor: pointer;
-            transition: var(--transition-smooth);
-            font-family: var(--font-primary); font-size: 15px; font-weight: 600; color: #ef4444;
-        }
-        .logout-cta:hover { background: rgba(239,68,68,0.12); border-color: #ef4444; }
-
-        /* Select */
-        .form-select {
-            background: rgba(0,0,0,0.2); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 8px 12px; color: var(--text-primary);
-            font-family: var(--font-primary); font-size: 13px; cursor: pointer;
-        }
-        .form-select:focus { outline: none; border-color: var(--primary-600); }
-        .form-select option { background: var(--bg-card); }
-
-        /* Toast */
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #10b981; color: white; padding: 12px 24px; border-radius: 8px;
-            font-size: 14px; font-weight: 500; z-index: 9999;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            animation: toastIn 0.3s ease-out;
-        }
-        @keyframes toastIn { from { transform: translate(-50%,20px); opacity:0; } to { transform: translate(-50%,0); opacity:1; } }
 
         .page-header { margin-bottom: 40px; }
+        .page-header h1 { font-family: var(--font-display); font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .page-header p { color: var(--text-secondary); }
+
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; margin-bottom: 24px; }
+        .card-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+        .card-title svg { color: var(--primary-600); }
+
+        .settings-list { display: flex; flex-direction: column; gap: 12px; }
+        .setting-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px; border-radius: 12px; background: rgba(0,0,0,0.2); border: 1px solid var(--border-color);
+        }
+        .setting-info { display: flex; flex-direction: column; gap: 4px; }
+        .setting-label { font-size: 14px; font-weight: 600; }
+        .setting-desc { font-size: 12px; color: var(--text-tertiary); }
+
+        /* Custom Toggle Switch */
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; inset: 0; background-color: rgba(255,255,255,0.1); transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary-600); }
+        input:checked + .slider:before { transform: translateX(20px); }
+
+        .form-select {
+            background: rgba(0,0,0,0.4); border: 1px solid var(--border-color); border-radius: 8px;
+            padding: 8px 12px; color: white; font-size: 13px;
+        }
+
+        .danger-btn {
+            background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.3s;
+        }
+        .danger-btn:hover { background: #ef4444; color: white; }
+
+        /* Icon Button styling from home.html */
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-profile {
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .profile-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            min-width: 180px;
+            padding: 8px 0;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: var(--transition-smooth);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+
+        .nav-profile:hover .profile-dropdown {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            transition: var(--transition-smooth);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <aside class="sidebar">
-        <div class="sidebar-logo">
-            <div class="logo">
-                <div class="logo-icon">
-                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect width="32" height="32" rx="8" fill="url(#sg2)"/>
-                        <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2"/>
-                        <circle cx="16" cy="16" r="3" fill="white"/>
-                        <defs><linearGradient id="sg2"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
-                    </svg>
-                </div>
-                <span class="logo-text">DOC GENIE</span>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="home.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                Home
-            </a>
-            <a href="documents.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                My Documents
-            </a>
-            <a href="profile.html" class="nav-item">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                My Profile
-            </a>
-            <a href="settings.html" class="nav-item active">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                Settings
-            </a>
-            <a href="#" class="nav-item logout-btn-sidebar" onclick="doLogout()">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                Logout
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Main -->
-    <main class="main-content">
-        <div class="page-header">
-            <h1 style="font-family: var(--font-display); font-size: 28px;">Settings</h1>
-            <p style="color: var(--text-secondary); margin-top: 6px;">Manage your preferences and account settings</p>
-        </div>
-
-        <!-- Appearance -->
-        <div class="settings-card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                Appearance
-            </div>
-            <div class="card-desc">Customize how DOC GENIE looks on your device</div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Theme</div>
-                    <div class="setting-sub">Choose between Dark and Light interface</div>
-                </div>
-                <div class="toggle-wrap">
-                    <span class="toggle-label" id="themeLabelLeft">🌙 Dark</span>
-                    <label class="toggle">
-                        <input type="checkbox" id="themeToggle" onchange="toggleTheme()">
-                        <span class="toggle-slider"></span>
-                    </label>
-                    <span class="toggle-label" id="themeLabelRight">☀️ Light</span>
-                </div>
-            </div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Compact Mode</div>
-                    <div class="setting-sub">Reduce spacing for more content on screen</div>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" id="compactToggle" onchange="savePrefs()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Default Document Theme</div>
-                    <div class="setting-sub">Applied when formatting without custom selection</div>
-                </div>
-                <select class="form-select" id="defaultDocTheme" onchange="savePrefs()">
-                    <option value="Modern">Modern Professional</option>
-                    <option value="Classic">Classic Academic</option>
-                    <option value="Minimal">Minimal Elegant</option>
-                    <option value="Bold">Bold Business</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Notifications -->
-        <div class="settings-card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                Notifications & Feedback
-            </div>
-            <div class="card-desc">Control what messages and alerts you receive</div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Toast Notifications</div>
-                    <div class="setting-sub">Show success/error messages inside the app</div>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" id="toastsToggle" checked onchange="savePrefs()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Auto-save documents</div>
-                    <div class="setting-sub">Automatically prompt to save after generation</div>
-                </div>
-                <label class="toggle">
-                    <input type="checkbox" id="autoSaveToggle" checked onchange="savePrefs()">
-                    <span class="toggle-slider"></span>
-                </label>
-            </div>
-        </div>
-
-        <!-- AI Defaults -->
-        <div class="settings-card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                AI Generation Defaults
-            </div>
-            <div class="card-desc">Set your preferred defaults for AI content generation</div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Default Tone</div>
-                    <div class="setting-sub">Pre-selected tone when opening AI Content Generator</div>
-                </div>
-                <select class="form-select" id="defaultTone" onchange="savePrefs()">
-                    <option value="Professional">Professional</option>
-                    <option value="Academic">Academic</option>
-                    <option value="Formal">Formal</option>
-                    <option value="Informal">Informal</option>
-                </select>
-            </div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Default Length</div>
-                    <div class="setting-sub">Pre-selected content length for generation</div>
-                </div>
-                <select class="form-select" id="defaultLength" onchange="savePrefs()">
-                    <option value="Short">Short</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Long">Long</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Account Actions -->
-        <div class="settings-card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                Account
-            </div>
-            <div class="card-desc">Manage your account and session</div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">View Profile</div>
-                    <div class="setting-sub">Edit your name, bio, and personal details</div>
-                </div>
-                <a href="profile.html" class="btn btn-secondary" style="padding: 8px 18px; font-size: 13px; text-decoration: none;">
-                    Go to Profile →
+    <nav class="navbar" style="background: var(--bg-darker); border-bottom: 1px solid var(--border-color);">
+        <div class="container">
+            <div class="nav-content">
+                <a href="home.html" style="text-decoration: none;">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect width="32" height="32" rx="8" fill="url(#logo-gradient)" />
+                                <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+                                <circle cx="16" cy="16" r="3" fill="white" />
+                                <defs>
+                                    <linearGradient id="logo-gradient" x1="0" y1="0" x2="32" y2="32">
+                                        <stop offset="0%" stop-color="#6366f1" />
+                                        <stop offset="100%" stop-color="#8b5cf6" />
+                                    </linearGradient>
+                                </defs>
+                            </svg>
+                        </div>
+                        <span class="logo-text">DOC GENIE</span>
+                    </div>
                 </a>
-            </div>
-
-            <div class="setting-row" style="border-bottom: none; padding-bottom: 0;">
-                <div class="setting-info">
-                    <div class="setting-label">Sign Out</div>
-                    <div class="setting-sub">Log out of your DOC GENIE account on this device</div>
+                
+                <div class="nav-links" style="display: flex; gap: 32px;">
+                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="documents.html" class="nav-link">Documents</a>
                 </div>
-                <button class="logout-cta" onclick="doLogout()" style="width: auto; padding: 10px 20px; font-size: 13px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                    Logout
-                </button>
+
+                <div class="nav-profile">
+                    <a href="settings.html" class="icon-btn active" title="Settings">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </a>
+                    <div style="position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <div id="navAvatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: white;">US</div>
+                        <div class="profile-dropdown">
+                            <div style="padding: 12px 20px; border-bottom: 1px solid var(--border-color);">
+                                <div id="navDropName" style="font-weight: 600; color: var(--text-primary); font-size: 14px;">User</div>
+                                <div id="navDropEmail" style="color: var(--text-tertiary); font-size: 12px;">user@example.com</div>
+                            </div>
+                            <a href="profile.html" class="dropdown-item">My Profile</a>
+                            <a href="settings.html" class="dropdown-item">Settings</a>
+                            <div style="border-top: 1px solid var(--border-color); margin-top: 4px;"></div>
+                            <a href="#" class="dropdown-item" onclick="logout()" style="color: #ef4444;">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="settings-container">
+        <header class="page-header">
+            <h1>Platform Settings</h1>
+            <p>Customize your experience and manage your account preferences.</p>
+        </header>
+
+        <!-- UI Preferences -->
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Appearance & UI
+            </h2>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Dark Mode</span>
+                        <span class="setting-desc">Use the high-contrast dark theme (Recommended)</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked disabled>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Compact Mode</span>
+                        <span class="setting-desc">Show more items on the screen with reduced spacing</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="checkCompact">
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
 
-        <!-- Danger Zone -->
-        <div class="settings-card danger-card">
-            <div class="card-title">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                Danger Zone
-            </div>
-            <div class="card-desc">Irreversible actions — please proceed with caution</div>
-
-            <div class="setting-row">
-                <div class="setting-info">
-                    <div class="setting-label">Clear All Documents</div>
-                    <div class="setting-sub">Permanently delete all your stored documents from the database</div>
+        <!-- AI Settings -->
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                AI & Generation
+            </h2>
+            <div class="settings-list">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Default Creativity</span>
+                        <span class="setting-desc">Adjust how creative vs professional the AI should be</span>
+                    </div>
+                    <select class="form-select">
+                        <option>Strictly Professional</option>
+                        <option selected>Balanced</option>
+                        <option>Creative / Academic</option>
+                    </select>
                 </div>
-                <button class="danger-btn" onclick="clearAllDocs()">
-                    Clear All Documents
-                </button>
-            </div>
-
-            <div class="setting-row" style="border-bottom: none;">
-                <div class="setting-info">
-                    <div class="setting-label">Reset Preferences</div>
-                    <div class="setting-sub">Reset all settings to their default values</div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <span class="setting-label">Auto-Refine Content</span>
+                        <span class="setting-desc">Automatically perform a second pass for quality control</span>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" checked id="checkAutoRefine">
+                        <span class="slider"></span>
+                    </label>
                 </div>
-                <button class="danger-btn" onclick="resetPrefs()">
-                    Reset Preferences
-                </button>
             </div>
         </div>
 
-    </main>
+        <!-- Account Settings -->
+        <div class="card">
+            <h2 class="card-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64l1.42-1.42"/><path d="M12 2v2"/><path d="M5.64 6.64L4.22 5.22"/><path d="M22 12h-2"/><path d="M2 12h2"/><path d="M18.36 17.36l1.42 1.42"/><path d="M12 22v-2"/><path d="M5.64 17.36l-1.42 1.42"/></svg>
+                Account Actions
+            </h2>
+            <div class="settings-list">
+                <div class="setting-item" style="border-color: rgba(239,68,68,0.2);">
+                    <div class="setting-info">
+                        <span class="setting-label">Clear All History</span>
+                        <span class="setting-desc">Permanently delete all generated documents from your account</span>
+                    </div>
+                    <button class="danger-btn" onclick="clearHistory()">Clear History</button>
+                </div>
+                <div class="setting-item" style="border-color: rgba(239,68,68,0.2);">
+                    <div class="setting-info">
+                        <span class="setting-label">Account Logout</span>
+                        <span class="setting-desc">Sign out of your account on this device</span>
+                    </div>
+                    <button class="danger-btn" onclick="logout()" style="background: rgba(255,255,255,0.05); color: white; border-color: var(--border-color);">Logout Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <script src="js/docsHelper.js"></script>
     <script>
-        // ─── Auth ────────────────────────────────────────────────────
-        const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
-        if (!userData) window.location.href = 'login.html';
-
-        // ─── Prefs Storage ───────────────────────────────────────────
-        const PREFS_KEY = 'docgenie_settings';
-        function loadPrefs() {
-            return JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
-        }
-        function savePrefs() {
-            const prefs = {
-                theme: document.getElementById('themeToggle').checked ? 'light' : 'dark',
-                compact: document.getElementById('compactToggle').checked,
-                defaultDocTheme: document.getElementById('defaultDocTheme').value,
-                toasts: document.getElementById('toastsToggle').checked,
-                autoSave: document.getElementById('autoSaveToggle').checked,
-                defaultTone: document.getElementById('defaultTone').value,
-                defaultLength: document.getElementById('defaultLength').value,
-            };
-            localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-            showToast('Settings saved');
-        }
-
-        function applyPrefs(prefs) {
-            if (prefs.theme === 'light') {
-                document.getElementById('themeToggle').checked = true;
-                applyLightMode();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
             }
-            if (prefs.compact) document.getElementById('compactToggle').checked = true;
-            if (prefs.defaultDocTheme) document.getElementById('defaultDocTheme').value = prefs.defaultDocTheme;
-            if (prefs.toasts === false) document.getElementById('toastsToggle').checked = false;
-            if (prefs.autoSave === false) document.getElementById('autoSaveToggle').checked = false;
-            if (prefs.defaultTone) document.getElementById('defaultTone').value = prefs.defaultTone;
-            if (prefs.defaultLength) document.getElementById('defaultLength').value = prefs.defaultLength;
-        }
 
-        // ─── Theme Toggle ────────────────────────────────────────────
-        function applyLightMode() {
-            document.body.style.setProperty('--bg-dark', '#f1f5f9');
-            document.body.style.setProperty('--bg-darker', '#e2e8f0');
-            document.body.style.setProperty('--bg-card', '#ffffff');
-            document.body.style.setProperty('--text-primary', '#0f172a');
-            document.body.style.setProperty('--text-secondary', '#475569');
-            document.body.style.setProperty('--border-color', '#e2e8f0');
-            document.body.setAttribute('data-theme', 'light');
-        }
-        function applyDarkMode() {
-            document.body.removeAttribute('style');
-            document.body.setAttribute('data-theme', 'dark');
-        }
-        function toggleTheme() {
-            const isLight = document.getElementById('themeToggle').checked;
-            if (isLight) applyLightMode(); else applyDarkMode();
-            savePrefs();
-        }
+            const name = userData.user_metadata?.full_name || 'User';
+            document.getElementById('navAvatar').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('navDropName').textContent = name;
+            document.getElementById('navDropEmail').textContent = userData.email || '';
 
-        // ─── Reset Prefs ─────────────────────────────────────────────
-        function resetPrefs() {
-            if (!confirm('Reset all preferences to defaults?')) return;
-            localStorage.removeItem(PREFS_KEY);
-            window.location.reload();
-        }
-
-        // ─── Clear Documents ─────────────────────────────────────────
-        async function clearAllDocs() {
-            if (!confirm('This will permanently delete ALL your documents. Are you absolutely sure?')) return;
-            if (!confirm('This action CANNOT be undone. Confirm final deletion?')) return;
+            // Load saved preferences from Supabase
             try {
-                const docs = await fetch(`http://127.0.0.1:5000/api/documents?userId=${userData.id}`).then(r => r.json());
-                if (docs.success) {
-                    for (const doc of docs.documents) {
-                        await fetch(`http://127.0.0.1:5000/api/documents/${doc.id}`, { method: 'DELETE' });
+                const profileRes = await fetch('http://localhost:5000/api/profile', {
+                    headers: { 'x-user-id': userData.id }
+                });
+                const profileData = await profileRes.json();
+                
+                if (profileData.success && profileData.profile) {
+                    const settings = profileData.profile.settings || {};
+                    document.getElementById('checkCompact').checked = settings.compact || false;
+                    document.getElementById('checkAutoRefine').checked = settings.autoRefine !== false;
+                    
+                    if (settings.compact) {
+                        document.body.classList.add('compact-mode');
                     }
-                    showToast(`Deleted ${docs.documents.length} documents`);
                 }
-            } catch (e) {
-                showToast('Error: Could not connect to server', 'error');
+            } catch (err) {
+                console.error('Error loading settings from Supabase:', err);
+            }
+
+            // Event Listeners
+            document.getElementById('checkCompact').addEventListener('change', savePrefs);
+            document.getElementById('checkAutoRefine').addEventListener('change', savePrefs);
+        });
+
+        async function savePrefs() {
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) return;
+
+            const isCompact = document.getElementById('checkCompact').checked;
+            const settings = {
+                compact: isCompact,
+                autoRefine: document.getElementById('checkAutoRefine').checked
+            };
+            
+            // Apply compact mode immediately
+            if (isCompact) {
+                document.body.classList.add('compact-mode');
+            } else {
+                document.body.classList.remove('compact-mode');
+            }
+
+            // Save to Supabase
+            try {
+                await fetch('http://localhost:5000/api/profile', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-user-id': userData.id
+                    },
+                    body: JSON.stringify({ settings })
+                });
+            } catch (err) {
+                console.error('Error saving settings to Supabase:', err);
             }
         }
 
-        // ─── Logout ──────────────────────────────────────────────────
-        function doLogout() {
+        async function clearHistory() {
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) return;
+
+            if (!confirm('Are you ABSOLUTELY sure? This will delete all your documents forever.')) return;
+            
+            try {
+                // Fetch all docs to delete them one by one (simulating a batch clear)
+                const res = await fetch('http://localhost:5000/api/documents', {
+                    headers: { 'x-user-id': userData.id }
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    for (const doc of data.documents) {
+                        await fetch(`http://localhost:5000/api/documents/${doc.id}`, { 
+                            method: 'DELETE',
+                            headers: { 'x-user-id': userData.id }
+                        });
+                    }
+                    alert('History cleared successfully!');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Error clearing history.');
+            }
+        }
+
+        function logout() {
             sessionStorage.clear();
             window.location.href = 'login.html';
         }
-
-        // ─── Toast ───────────────────────────────────────────────────
-        function showToast(msg, type = 'success') {
-            const t = document.createElement('div');
-            t.className = 'toast';
-            t.style.background = type === 'success' ? '#10b981' : '#ef4444';
-            t.textContent = msg;
-            document.body.appendChild(t);
-            setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 0.3s'; setTimeout(() => t.remove(), 300); }, 2500);
-        }
-
-        // ─── Init ────────────────────────────────────────────────────
-        document.addEventListener('DOMContentLoaded', () => {
-            applyPrefs(loadPrefs());
-        });
     </script>
 </body>
 </html>

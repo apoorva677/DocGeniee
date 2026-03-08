@@ -52,6 +52,28 @@ body {
     overflow-x: hidden;
 }
 
+/* Compact Mode */
+body.compact-mode {
+    line-height: 1.4;
+}
+
+body.compact-mode .navbar .nav-content {
+    padding: 12px 0;
+}
+
+body.compact-mode .hero {
+    padding-top: 40px;
+    min-height: auto;
+}
+
+body.compact-mode .feature-card {
+    padding: 20px;
+}
+
+body.compact-mode .stat-card {
+    padding: 16px;
+}
+
 .container {
     max-width: var(--container-width);
     margin: 0 auto;

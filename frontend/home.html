@@ -485,6 +485,7 @@
         </div>
     </footer>
 
+    <script src="js/docsHelper.js"></script>
     <script src="script.js"></script>
     <script>
         async function openStreamlitDirectly() {
@@ -507,6 +508,59 @@
                 console.error('Error starting Streamlit:', err);
                 // Fallback: try opening directly just in case it's already running
                 window.open('http://localhost:8501', '_blank');
+            }
+        }
+
+        // --- Restored Auth & Data Loading Logic ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load Recent Documents
+            loadRecentDocuments();
+        });
+
+        async function loadRecentDocuments() {
+            const list = document.getElementById('documentsList');
+            const section = document.getElementById('recentActivitySection');
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            
+            if (!userData) return;
+
+            try {
+                const res = await fetch('http://localhost:5000/api/documents', {
+                    headers: {
+                        'x-user-id': userData.id
+                    }
+                });
+                const data = await res.json();
+                
+                if (data.success && data.documents.length > 0) {
+                    section.style.display = 'block';
+                    // Show only first 3
+                    const recent = data.documents.slice(0, 3);
+                    list.innerHTML = recent.map(doc => `
+                        <a href="documents.html" class="home-feature-card" style="text-decoration: none;">
+                            <div class="hf-icon" style="color: var(--primary-600); background: rgba(99,102,241,0.1);">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                            </div>
+                            <h3 class="hf-title">${doc.title}</h3>
+                            <p class="hf-desc">${doc.document_type || doc.type} • ${new Date(doc.created_at).toLocaleDateString()}</p>
+                            <div class="hf-btn">View Document <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg></div>
+                        </a>
+                    `).join('');
+                }
+            } catch (err) {
+                console.error('Error loading recent docs:', err);
             }
         }
     </script>
