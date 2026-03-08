@@ -401,7 +401,7 @@
                 document.getElementById('btnSave').innerHTML = 'Downloading...';
                 
                 try {
-                    const response = await fetch('http://localhost:5000/api/document/download', {
+                    const response = await fetch('http://127.0.0.1:5000/api/downloads/download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
