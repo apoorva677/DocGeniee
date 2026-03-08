@@ -64,7 +64,7 @@ DocGeniee/
    ```
 
 ### 4. Frontend Usage
-Simply open `frontend/login.html` or `frontend/home.html` in your browser. The frontend is configured to connect to the backend running at `http://127.0.0.1:5000`.
+Simply open `frontend/login.html` or `frontend/home.html` in your browser. The frontend is configured to connect to the backend running at `http://localhost:5000`.
 
 ## 🧪 Testing
 The backend includes several test scripts:

@@ -33,23 +33,29 @@ exports.generateDocument = async ({ category, documentType, fieldData }) => {
         const docTitle = fieldData.title || `${documentType} Document`;
 
         const prompt = `
-Generate a structured ${documentType} with the exact following sections clearly defined using <h2> tags:
+Generate a professional, well-structured ${documentType} with the exact following sections clearly defined using <h2> tags:
 
 - ${structureString}
 
+Each section must contain UNIQUE content. Avoid repeating the same information or phrases across multiple sections.
+
+Section-Specific Guidance:
+- Introduction: Briefly explain the purpose and context of the ${documentType}.
+- Analysis/Main Content: Provide detailed insights, facts, and professional interpretation based on the provided info.
+- Conclusion/Key Insights: Summarize key points in a concise manner without repeating entire sentences from previous sections.
+
 Document Title: ${docTitle}
 
-Here is the specific information provided by the user to use in the document. You MUST incorporate this information appropriately into the corresponding sections:
+Specific User Information to incorporate:
 ${userInstructions}
 
-Formatting rules:
-- Provide ONLY the direct content text (HTML format) without introductory remarks like "Here is your document".
-- Start directly with <h1>${docTitle}</h1>.
-- Use <h2> for main sections EXACTLY matching the required sections above.
-- Use <p> for paragraphs.
-- Use <ul> / <li> for bullet points where appropriate.
-- Do NOT use markdown. Reply with pure HTML structure inside a <div>.
-- Ensure the document is highly professional, formal, and well-structured, matching the tone expected for a ${category} document.
+Technical Formatting rules:
+1. Provide ONLY clean HTML inside a <div>.
+2. Use <h1> for the title: <h1>${docTitle}</h1>.
+3. Use <h2> for major sections matching the list above EXACTLY.
+4. Use <p> for body text and <ul>/<li> for lists.
+5. NO markdown, NO preamble, NO conversational filler.
+6. Maintain a highly professional and formal tone appropriate for a ${category} document.
         `.trim();
 
         // 3. Send prompt to AI Content Generator

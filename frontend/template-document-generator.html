@@ -249,15 +249,17 @@
         <div class="output-panel">
             <div class="output-toolbar">
                 <div class="output-title" id="outputTitle">Document Preview</div>
-                <div class="toolbar-actions">
-                    <select class="action-btn" id="downloadFormat" style="outline: none; background: rgba(255,255,255,0.03); cursor:pointer;">
-                        <option value="pdf" style="color: black;">PDF</option>
-                        <option value="docx" style="color: black;">DOCX</option>
-                    </select>
-                    <button class="action-btn primary" id="btnDownload">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-                        Download
-                    </button>
+                    <button class="action-btn" id="btnHistorySave" title="Save to history">Save</button>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border-color);">
+                        <select id="downloadFormat" class="action-btn" style="outline: none; background: rgba(255,255,255,0.03); cursor:pointer; color: var(--text-primary);">
+                            <option value="pdf" style="color: black;">PDF</option>
+                            <option value="docx" style="color: black;">DOCX</option>
+                        </select>
+                        <button class="action-btn primary" id="btnDownload">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="editor-container">
@@ -278,8 +280,9 @@
         </div>
     </div>
 
+    <script src="js/docsHelper.js"></script>
     <script>
-        const API_BASE = 'http://127.0.0.1:5000';
+        const API_BASE = 'http://localhost:5000';
 
         // State
         let selectedFile = null;
@@ -448,6 +451,11 @@
                     outputContent.innerHTML = data.data.formattedHtml;
                     outputTitle.textContent = generatedTitle;
                     outputContent.style.display = 'block';
+
+                    // Auto-save to history
+                    if (window.saveDocument) {
+                        window.saveDocument(data.data.formattedHtml, generatedTitle, 'Template', 'Template Generator');
+                    }
                 } else {
                     alert('Generation failed: ' + data.error);
                     emptyState.style.display = 'flex';
@@ -462,45 +470,61 @@
         });
 
         // ── Download ──
-        btnDownload.addEventListener('click', async () => {
-            if (!outputContent.innerHTML || outputContent.style.display === 'none') return;
+            // Manual save to history
+            document.getElementById('btnHistorySave').onclick = async () => {
+                if (!outputContent.innerHTML || outputContent.style.display === 'none') return;
+                try {
+                    if (window.saveDocument) {
+                        const originalHTML = document.getElementById('btnHistorySave').innerHTML;
+                        document.getElementById('btnHistorySave').innerHTML = 'Saving...';
+                        await window.saveDocument(outputContent.innerHTML, generatedTitle, 'Template', 'Template Generator');
+                        document.getElementById('btnHistorySave').innerHTML = 'Saved';
+                        setTimeout(() => { document.getElementById('btnHistorySave').innerHTML = originalHTML; }, 2000);
+                    }
+                } catch (err) { console.error(err); }
+            };
 
-            const format = document.getElementById('downloadFormat').value;
-            const originalLabel = btnDownload.innerHTML;
-            btnDownload.innerHTML = 'Downloading…';
-            btnDownload.disabled = true;
+            // Standardized Download logic
+            document.getElementById('btnDownload').onclick = async () => {
+                if (!outputContent.innerHTML || outputContent.style.display === 'none') return;
 
-            try {
-                const res = await fetch(`${API_BASE}/api/template-doc/download`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        html: outputContent.innerHTML,
-                        title: generatedTitle,
-                        format
-                    })
-                });
+                const format = document.getElementById('downloadFormat').value;
+                const btnDownload = document.getElementById('btnDownload');
+                const originalLabel = btnDownload.innerHTML;
+                btnDownload.innerHTML = 'Downloading...';
+                btnDownload.disabled = true;
 
-                if (res.ok) {
-                    const blob = await res.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${generatedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
-                    document.body.appendChild(a);
-                    a.click();
-                    a.remove();
-                    window.URL.revokeObjectURL(url);
-                } else {
-                    alert(`Failed to download document as ${format.toUpperCase()}.`);
+                try {
+                    const res = await fetch('http://localhost:5000/api/document/download', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            html: outputContent.innerHTML,
+                            title: generatedTitle,
+                            format
+                        })
+                    });
+
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `${generatedTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${format}`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    } else {
+                        alert(`Failed to download document as ${format.toUpperCase()}.`);
+                    }
+                } catch (err) {
+                    alert('Error downloading document.');
+                } finally {
+                    btnDownload.innerHTML = originalLabel;
+                    btnDownload.disabled = false;
                 }
-            } catch (err) {
-                alert('Error downloading document.');
-            } finally {
-                btnDownload.innerHTML = originalLabel;
-                btnDownload.disabled = false;
-            }
-        });
+            };
     </script>
 </body>
 </html>

@@ -29,12 +29,17 @@ exports.format = async (params) => {
     // 1. Semantic Tag Parser (Tag-based structure)
     const parseTaggedContent = (text) => {
         const segments = [];
-        const regex = /\[([A-Z_]+)\]([\s\S]*?)(?=\[[A-Z_]+\]|$)/g;
+        // Regex to match [TAG]...[/TAG] OR [TAG]...[NEXT_TAG]
+        const regex = /\[([A-Z_]+)\]([\s\S]*?)(\[\/\1\]|(?=\[[A-Z_]+\])|$)/g;
         let match;
         while ((match = regex.exec(text)) !== null) {
-            segments.push({ tag: match[1], content: match[2].trim() });
+            // Cleanup: remove any internal structural tags if they somehow leaked into content
+            const segmentContent = match[2].replace(/\[\/?(TITLE|ADDRESS|DATE|SECTION|SUBSECTION|BODY|LIST_ITEM|CLOSING|ABSTRACT)\]/g, '').trim();
+            if (segmentContent) {
+                segments.push({ tag: match[1], content: segmentContent });
+            }
         }
-        return segments.length > 0 ? segments : [{ tag: 'BODY', content: text }];
+        return segments.length > 0 ? segments : [{ tag: 'BODY', content: text.replace(/\[\/?(TITLE|ADDRESS|DATE|SECTION|SUBSECTION|BODY|LIST_ITEM|CLOSING|ABSTRACT)\]/g, '').trim() }];
     };
 
     const segments = parseTaggedContent(content);

@@ -262,7 +262,7 @@
         <div class="welcome-section">
             <h1 class="welcome-title">Welcome to DOC GENIE</h1>
             <p class="welcome-subtitle">An AI powered platform that automatically generates professional documents using structured input and intelligent formatting.</p>
-            <a href="#" class="btn btn-primary">
+            <a href="professional-generator.html" class="btn btn-primary">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <line x1="12" y1="5" x2="12" y2="19"></line>
                     <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -302,13 +302,13 @@
                 <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
             </a>
 
-            <a href="#" class="home-feature-card" onclick="openStreamlitDirectly()">
+            <a href="data-report-generator.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #10b981; background: rgba(16,185,129,0.1);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
                 </div>
-                <h3 class="hf-title">Data Analysis</h3>
-                <p class="hf-desc">Open IIT JEE seat allocation analysis system.</p>
-                <div class="hf-btn">Open <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
+                <h3 class="hf-title">Data Analytics Engine</h3>
+                <p class="hf-desc">Analyze CSV/Excel datasets, generate visual charts, and produce professional AI reports.</p>
+                <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
             </a>
 
             <a href="template-document-generator.html" class="home-feature-card">
@@ -338,7 +338,7 @@
                 <div class="hf-btn">Select <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></div>
             </a>
 
-            <a href="#" class="home-feature-card">
+            <a href="documents.html" class="home-feature-card">
                 <div class="hf-icon" style="color: #eab308; background: rgba(234,179,8,0.1);">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22h14a2 2 0 0 0 2-2V7.5L14.5 2H6a2 2 0 0 0-2 2v4"></path><path d="M14 2v6h6"></path><path d="M2 15h10"></path><path d="M2 18h10"></path></svg>
                 </div>
@@ -397,29 +397,5 @@
     </footer>
 
     <script src="script.js"></script>
-    <script>
-        async function openStreamlitDirectly() {
-            try {
-                // First, tell the backend to ensure Streamlit is started
-                const response = await fetch('http://127.0.0.1:5000/api/data-report/start-streamlit', {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                
-                if (data.success) {
-                    // Give it a small moment to initialize then open
-                    setTimeout(() => {
-                        window.open(data.url || 'http://localhost:8501', '_blank');
-                    }, 1500);
-                } else {
-                    alert('Could not start Data Analysis service: ' + data.error);
-                }
-            } catch (err) {
-                console.error('Error starting Streamlit:', err);
-                // Fallback: try opening directly just in case it's already running
-                window.open('http://localhost:8501', '_blank');
-            }
-        }
-    </script>
 </body>
 </html>

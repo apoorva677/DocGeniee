@@ -26,7 +26,15 @@ exports.generate = async (params) => {
             messages: [
                 {
                     role: 'system',
-                    content: 'You are DOC GENIE, an expert AI document generation platform. Your task is to output high-quality, perfectly formatted content based on user instructions. Use ONLY clean HTML formatting (<h2>, <p>, <ul>, <li>, <strong>). CRITICAL: Do NOT use any custom bullet symbols like "->", "*", or "-" inside the text or list items. Stick strictly to valid HTML tags for structure.'
+                    content: `You are DOC GENIE, an elite AI document architect. Your goal is to produce world-class documents with zero redundancy.
+                    
+                    STRICT RULES:
+                    1. NO REPETITION: Never repeat a sentence or idea. Ever. 
+                    2. PROFESSIONALISM: Use sophisticated, clear, and formal language.
+                    3. STRUCTURE: Use ONLY valid HTML (<h2>, <p>, <ul>, <li>, <strong>). 
+                    4. CLEANLINESS: No preamble ("Certainly!", "I have generated..."), just the document.
+                    5. NO SYMBOLS: Never use markdown symbols (->, *, -) for lists; use the <ul> and <li> tags.
+                    6. SUMMARIZATION: Conclusions must summarize, not repeat.`
                 },
                 {
                     role: 'user',
@@ -39,11 +47,55 @@ exports.generate = async (params) => {
         });
 
         // 3. Return the generated text
-        return chatCompletion.choices[0].message.content;
+        const content = chatCompletion.choices[0].message.content;
+        
+        // 4. Perform an extra validation pass to ensure quality (optional for performance, but user requested it)
+        return await this.validateAndCleanContent(content);
 
     } catch (error) {
         console.error('[AI Service Error]:', error);
         throw new Error('Failed to generate AI content via Groq: ' + error.message);
+    }
+};
+
+/**
+ * AI Quality Control Service
+ * Checks for repeated sentences, redundant paragraphs, and filler.
+ */
+exports.validateAndCleanContent = async (text) => {
+    if (!text || text.length < 100) return text;
+
+    console.log('[AI Service] Performing Quality Control pass...');
+
+    try {
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are a professional editor. Your task is to REMOVE REPETITION and IMPROVE QUALITY.
+                    
+                    INSTRUCTIONS:
+                    1. Read the provided HTML document.
+                    2. Identify and REMOVE any repeated sentences or identical points across sections.
+                    3. Remove unnecessary filler content or "fluff".
+                    4. Ensure logical flow between paragraphs.
+                    5. DO NOT summarize or shorten the document substantially; just cleanup redundancies.
+                    6. Return ONLY the cleaned HTML with no explanation.`
+                },
+                {
+                    role: 'user',
+                    content: text
+                }
+            ],
+            model: 'llama-3.3-70b-versatile',
+            temperature: 0.1,
+            max_tokens: 5000
+        });
+
+        return chatCompletion.choices[0].message.content.trim();
+    } catch (error) {
+        console.error('[AI Quality Control Error]:', error);
+        return text; // Fallback to raw text if QC fails
     }
 };
 
@@ -70,20 +122,20 @@ exports.refineContent = async (text, detectedType = 'General Document') => {
                     
                     RULES:
                     1. SPELLING/GRAMMAR: Fix all errors.
-                    2. TAGGING: Wrap segments in the following tags:
-                       - [TITLE]: Main document title
-                       - [ADDRESS]: Contact info, sender/recipient addresses
-                       - [DATE]: Date lines
-                       - [SECTION]: Major section headings
-                       - [SUBSECTION]: Minor headings
-                       - [BODY]: Standard paragraphs
-                       - [LIST_ITEM]: Bullet points or numbered items
-                       - [CLOSING]: Sign-offs and signatures
-                       - [ABSTRACT]: For academic papers or executive summaries
-                    3. CONTENT PRESERVATION: Do NOT summarize. Keep all original information.
-                    4. TYPE AWARENESS: You are processing a ${detectedType}. Tag accordingly.
+                    3. TAGGING: Wrap segments in the following tags:
+                       - [TITLE]content[/TITLE]: Main document title
+                       - [ADDRESS]content[/ADDRESS]: Contact info, sender/recipient addresses
+                       - [DATE]content[/DATE]: Date lines
+                       - [SECTION]content[/SECTION]: Major section headings
+                       - [SUBSECTION]content[/SUBSECTION]: Minor headings
+                       - [BODY]content[/BODY]: Standard paragraphs
+                       - [LIST_ITEM]content[/LIST_ITEM]: Bullet points or numbered items
+                       - [CLOSING]content[/CLOSING]: Sign-offs and signatures
+                       - [ABSTRACT]content[/ABSTRACT]: For academic papers or executive summaries
+                    4. CONTENT PRESERVATION: Do NOT summarize. Keep all original information.
+                    5. TYPE AWARENESS: You are processing a ${detectedType}. Tag accordingly.
                     
-                    Output ONLY the tagged text with NO preamble.`
+                    Output ONLY the tagged text with NO preamble. Do NOT use markdown. Do NOT use any tags other than those listed above. Use EXACTLY the [TAG]...[/TAG] format.`
                 },
                 {
                     role: 'user',

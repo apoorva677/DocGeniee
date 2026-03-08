@@ -153,6 +153,23 @@
         .output-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
         .toolbar-actions { display: flex; gap: 8px; }
         .action-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 6px 12px; border-radius: 6px; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        
+        .action-select {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .action-select:hover {
+            border-color: var(--border-color-hover);
+        }
+
         .action-btn.primary { background: rgba(99,102,241,0.1); color: var(--primary-600); border-color: rgba(99,102,241,0.2); }
 
         .editor-container { flex: 1; background: #2a2a2a; border: 1px solid var(--border-color); border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; }
@@ -339,10 +356,16 @@
                 <div class="output-title" id="outputTitle">Formatted Document</div>
                 <div class="toolbar-actions">
                     <button class="action-btn" id="btnCopy">Copy</button>
-                    <button class="action-btn" id="btnDownload">Download</button>
                     <button class="action-btn" id="btnEdit">Edit</button>
                     <button class="action-btn" id="btnClear">Clear</button>
-                    <button class="action-btn primary" id="btnSave">Save</button>
+                    <button class="action-btn" id="btnSave">Save</button>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border-color);">
+                        <select id="downloadFormat" class="action-select">
+                            <option value="pdf">PDF</option>
+                            <option value="docx">DOCX</option>
+                        </select>
+                        <button class="action-btn primary" id="btnDownload">Download</button>
+                    </div>
                 </div>
             </div>
 
@@ -363,6 +386,7 @@
         </div>
     </div>
 
+    <script src="js/docsHelper.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             let currentMode = 'Auto';
@@ -468,9 +492,14 @@
                         formattedOutput.style.display = 'block';
                         
                         // Display Detected Type
-                        if (data.detectedDocumentType) {
-                            document.getElementById('detectedDocumentType').innerText = data.detectedDocumentType;
+                        if (data.detectedType) {
+                            document.getElementById('detectedDocumentType').innerText = data.detectedType;
                             document.getElementById('detectedTypeContainer').style.display = 'block';
+                        }
+                        
+                        // Auto-save to history
+                        if (window.saveDocument) {
+                            window.saveDocument(data.formattedContent, document.getElementById('docTitle').value, 'Formatted', 'Formatting Engine');
                         }
                         
                         showToast('Formatting completed successfully!');
@@ -517,37 +546,39 @@
                 }, 2000);
             };
 
-            document.getElementById('btnDownload').onclick = () => {
+            // Save to history (manual)
+            document.getElementById('btnSave').onclick = async () => {
                 if (!formattedOutput.innerHTML) return;
-                const blob = new Blob([formattedOutput.innerHTML], { type: 'text/html' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `${document.getElementById('docTitle').value || 'formatted_doc'}.html`;
-                a.click();
-            };
-
-            document.getElementById('btnClear').onclick = () => {
-                if (confirm('Are you sure you want to clear the current document?')) {
-                    formattedOutput.innerHTML = '';
-                    formattedOutput.style.display = 'none';
-                    emptyState.style.display = 'flex';
-                    selectedFile = null;
-                    fileInfo.style.display = 'none';
-                    fileInput.value = '';
-                    uploadZone.style.borderColor = 'var(--border-color)';
+                const title = document.getElementById('docTitle').value;
+                const content = formattedOutput.innerHTML;
+                
+                try {
+                    if (window.saveDocument) {
+                        const originalHTML = document.getElementById('btnSave').innerHTML;
+                        document.getElementById('btnSave').innerHTML = 'Saving...';
+                        await window.saveDocument(content, title, 'Formatted', 'Formatting Engine');
+                        document.getElementById('btnSave').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Saved';
+                        setTimeout(() => { document.getElementById('btnSave').innerHTML = originalHTML; }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Save error:', err);
                 }
             };
 
-            const btnSave = document.getElementById('btnSave');
-            btnSave.onclick = async () => {
+            // Standardized Download logic
+            document.getElementById('btnDownload').onclick = async () => {
                 if (!formattedOutput.innerHTML) return;
 
-                const format = confirm('Save as PDF? (Cancel for DOCX)') ? 'pdf' : 'docx';
-                btnSave.innerText = 'Saving...';
+                const format = document.getElementById('downloadFormat').value;
+                const btnDownload = document.getElementById('btnDownload');
+                
+                // Show loading on button
+                const originalContent = btnDownload.innerHTML;
+                btnDownload.innerHTML = 'Downloading...';
+                btnDownload.disabled = true;
 
                 try {
-                    const res = await fetch('http://127.0.0.1:5000/api/documents/export', {
+                    const res = await fetch('http://localhost:5000/api/document/download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -557,7 +588,7 @@
                         })
                     });
 
-                    if (!res.ok) throw new Error('Save failed');
+                    if (!res.ok) throw new Error('Download failed');
 
                     const blob = await res.blob();
                     const url = window.URL.createObjectURL(blob);
@@ -565,12 +596,13 @@
                     a.href = url;
                     a.download = `${document.getElementById('docTitle').value || 'formatted_doc'}.${format}`;
                     a.click();
-                    showToast(`Document saved as ${format.toUpperCase()}!`);
+                    showToast(`Document downloaded as ${format.toUpperCase()}!`);
                 } catch (err) {
-                    console.error('Save error:', err);
-                    showToast('Save failed', 'error');
+                    console.error('Download error:', err);
+                    showToast('Download failed', 'error');
                 } finally {
-                    btnSave.innerText = 'Save';
+                    btnDownload.innerHTML = originalContent;
+                    btnDownload.disabled = false;
                 }
             };
 

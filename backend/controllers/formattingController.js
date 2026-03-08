@@ -8,7 +8,7 @@ const aiContentService = require('../services/aiContentService');
  */
 exports.formatContent = async (req, res) => {
     try {
-        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle } = req.body;
+        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings } = req.body;
 
         if (!content) {
             return res.status(400).json({ success: false, message: 'Content is required for formatting' });
@@ -37,6 +37,7 @@ exports.formatContent = async (req, res) => {
         console.log('[Formatting Controller]: Formatting completed successfully');
         res.json({
             success: true,
+            detectedType: detectedType,
             formattedContent: formattedContent
         });
 
@@ -94,7 +95,7 @@ exports.formatUploadedDocument = async (req, res) => {
         
         res.json({
             success: true,
-            detectedDocumentType: detectedType,
+            detectedType: detectedType,
             formattedContent: formattedContent
         });
 

@@ -6,6 +6,9 @@ exports.formatDocument = (htmlContent, documentType, category) => {
     // We provide a standardized, clean CSS layout that makes the document look professional
     // This will be useful when rendering in the frontend preview, and when exported to PDF
     
+    // CLEANUP: Ensure no internal structural tags (like [TITLE] or [/TITLE]) leak into the final output
+    const cleanHtml = htmlContent.replace(/\[\/?(TITLE|ADDRESS|DATE|SECTION|SUBSECTION|BODY|LIST_ITEM|CLOSING|ABSTRACT)\]/g, '').trim();
+
     const formattedHtml = `
 <div class="docgen-formatted-document" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #333; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 40px; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-radius: 8px;">
     <style>
@@ -24,7 +27,7 @@ exports.formatDocument = (htmlContent, documentType, category) => {
     </div>
 
     <div class="docgen-content">
-        ${htmlContent}
+        ${cleanHtml}
     </div>
 </div>
     `;

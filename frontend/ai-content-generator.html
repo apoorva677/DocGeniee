@@ -244,6 +244,22 @@
             border-color: var(--border-color-hover);
         }
 
+        .action-select {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            outline: none;
+            transition: var(--transition-smooth);
+        }
+
+        .action-select:hover {
+            border-color: var(--border-color-hover);
+        }
+
         .action-btn.primary {
             background: rgba(99,102,241,0.1);
             color: var(--primary-600);
@@ -538,10 +554,20 @@
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                         Clear
                     </button>
-                    <button class="action-btn primary" id="btnSave" title="Save document">
+                    <button class="action-btn" id="btnSave" title="Save document to history">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                         Save
                     </button>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border-color);">
+                        <select id="downloadFormat" class="action-select">
+                            <option value="pdf">PDF</option>
+                            <option value="docx">DOCX</option>
+                        </select>
+                        <button class="action-btn primary" id="btnDownload" title="Download document">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Download
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -573,6 +599,7 @@
         </div>
     </div>
 
+    <script src="js/docsHelper.js"></script>
     <script src="script.js"></script>
     <script>
         // Temporary inline script until external script is fully linked contextually
@@ -620,6 +647,11 @@
 
                     if (data.success) {
                         outputContent.innerHTML = data.generatedContent;
+
+                        // Auto-save to history
+                        if (window.saveDocument) {
+                            window.saveDocument(data.generatedContent, requestData.title, 'General', 'Generator');
+                        }
                     } else {
                         outputContent.innerHTML = '<p style="color: #ef4444;">Failed to generate content: ' + (data.error || 'Server error') + '</p>';
                     }
@@ -656,18 +688,40 @@
                 }
             });
 
-            btnSave.addEventListener('click', async () => {
+            // Save to history (manual)
+            document.getElementById('btnSave').addEventListener('click', async () => {
+                if(outputContent.style.display === 'none' || !outputContent.innerHTML) return;
+                
+                const title = outputTitle.textContent;
+                const content = outputContent.innerHTML;
+                
+                try {
+                    if (window.saveDocument) {
+                        const originalHTML = document.getElementById('btnSave').innerHTML;
+                        document.getElementById('btnSave').innerHTML = 'Saving...';
+                        await window.saveDocument(content, title, 'General', 'Generator');
+                        document.getElementById('btnSave').innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Saved';
+                        setTimeout(() => { document.getElementById('btnSave').innerHTML = originalHTML; }, 2000);
+                    }
+                } catch (err) {
+                    console.error('Save error:', err);
+                }
+            });
+
+            // Standardized Download logic
+            document.getElementById('btnDownload').addEventListener('click', async () => {
                 if(outputContent.style.display === 'none' || !outputContent.innerHTML) return;
 
-                const format = confirm('Download as PDF? (Click Cancel for DOCX)') ? 'pdf' : 'docx';
+                const format = document.getElementById('downloadFormat').value;
+                const btnDownload = document.getElementById('btnDownload');
                 
                 // Show loading on button
-                const originalContent = btnSave.innerHTML;
-                btnSave.innerHTML = 'Saving...';
-                btnSave.disabled = true;
+                const originalContent = btnDownload.innerHTML;
+                btnDownload.innerHTML = 'Downloading...';
+                btnDownload.disabled = true;
 
                 try {
-                    const response = await fetch('http://localhost:5000/api/documents/export', {
+                    const response = await fetch('http://localhost:5000/api/document/download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -691,10 +745,10 @@
                     }
                 } catch (err) {
                     console.error('Export error:', err);
-                    alert('Error exporting document. backend service might be unavailable.');
+                    alert('Error exporting document. Backend service might be unavailable.');
                 } finally {
-                    btnSave.innerHTML = originalContent;
-                    btnSave.disabled = false;
+                    btnDownload.innerHTML = originalContent;
+                    btnDownload.disabled = false;
                 }
             });
 

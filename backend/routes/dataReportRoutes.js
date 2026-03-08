@@ -36,71 +36,9 @@ const upload = multer({
   }
 });
 
-// Start Streamlit endpoint
-router.post('/start-streamlit', (req, res) => {
-  try {
-    const servicesDir = path.join(__dirname, '../services');
-    const pythonScript = path.join(servicesDir, 'try.py');
-    
-    // Check if Python and Streamlit are available
-    if (!fs.existsSync(pythonScript)) {
-      return res.status(404).json({ 
-        success: false, 
-        error: 'Streamlit script not found' 
-      });
-    }
-    
-    // Try to find an available port (start from 8501)
-    const startPort = 8501;
-    const maxPort = 8510;
-    let availablePort = startPort;
-    
-    // Simple port check - try a few ports
-    for (let port = startPort; port <= maxPort; port++) {
-      try {
-        const testProcess = spawn('python', ['-m', 'streamlit', 'run', 'try.py', '--server.port', port, '--server.headless', 'true'], {
-          cwd: servicesDir,
-          stdio: 'pipe',
-          shell: true
-        });
-        
-        // Wait a moment to see if it starts successfully
-        setTimeout(() => {
-          testProcess.kill('SIGTERM');
-        }, 2000);
-        
-        availablePort = port;
-        break;
-      } catch (error) {
-        continue; // Try next port
-      }
-    }
-    
-    // Start Streamlit in background with available port
-    const streamlitProcess = spawn('python', ['-m', 'streamlit', 'run', 'try.py', '--server.port', availablePort, '--server.headless', 'true'], {
-      cwd: servicesDir,
-      detached: true,
-      stdio: 'ignore',
-      shell: true
-    });
-    
-    streamlitProcess.unref();
-    
-    res.json({ 
-      success: true, 
-      message: `Streamlit is starting on port ${availablePort}...`,
-      port: availablePort,
-      url: `http://localhost:${availablePort}`
-    });
-    
-  } catch (error) {
-    console.error('Error starting Streamlit:', error);
-    res.status(500).json({ 
-      success: false, 
-      error: 'Failed to start Streamlit: ' + error.message 
-    });
-  }
-});
+// Legacy Streamlit support was removed in favor of the integrated Data Analytics Engine.
+// Use /api/data-analytics/analyze instead.
+
 
 // Upload endpoint
 router.post('/upload', upload.single('file'), (req, res) => {

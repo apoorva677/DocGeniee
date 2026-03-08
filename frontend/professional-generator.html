@@ -105,12 +105,14 @@
         <div class="output-panel">
             <div class="output-toolbar">
                 <div class="output-title" id="outputTitle">Document Preview</div>
-                <div class="toolbar-actions">
-                    <select class="action-btn" id="downloadFormat" style="outline: none; background: rgba(255,255,255,0.05);">
-                        <option value="pdf" style="color: black;">PDF</option>
-                        <option value="docx" style="color: black;">DOCX</option>
-                    </select>
-                    <button class="action-btn primary" id="btnSave">Download</button>
+                    <button class="action-btn" id="btnHistorySave" title="Save to history">Save</button>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-left: 8px; padding-left: 8px; border-left: 1px solid var(--border-color);">
+                        <select id="downloadFormat" class="action-btn" style="outline: none; background: rgba(255,255,255,0.05); color: var(--text-primary);">
+                            <option value="pdf" style="color: black;">PDF</option>
+                            <option value="docx" style="color: black;">DOCX</option>
+                        </select>
+                        <button class="action-btn primary" id="btnDownload">Download</button>
+                    </div>
                 </div>
             </div>
             <div class="editor-container">
@@ -142,6 +144,7 @@
         </div>
     </div>
 
+    <script src="js/docsHelper.js"></script>
     <script>
         const templates = {
             "Resume": [
@@ -385,6 +388,11 @@
                         outputContent.innerHTML = data.data.formattedHtml;
                         rawContent.innerHTML = data.data.rawHtml;
                         outputContent.style.display = 'block';
+
+                        // Auto-save to history
+                        if (window.saveDocument) {
+                            window.saveDocument(data.data.formattedHtml, currentSelectedType, 'Professional', 'Generator');
+                        }
                     } else {
                         alert('Error: ' + data.error);
                         emptyState.style.display = 'flex';
@@ -398,15 +406,32 @@
                 }
             };
 
-            document.getElementById('btnSave').onclick = async () => {
+            // Manual save to history
+            document.getElementById('btnHistorySave').onclick = async () => {
+                if(outputContent.style.display === 'none' || !outputContent.innerHTML) return;
+                try {
+                    if (window.saveDocument) {
+                        const originalHTML = document.getElementById('btnHistorySave').innerHTML;
+                        document.getElementById('btnHistorySave').innerHTML = 'Saving...';
+                        await window.saveDocument(outputContent.innerHTML, currentSelectedType, 'Professional', 'Generator');
+                        document.getElementById('btnHistorySave').innerHTML = 'Saved';
+                        setTimeout(() => { document.getElementById('btnHistorySave').innerHTML = originalHTML; }, 2000);
+                    }
+                } catch (err) { console.error(err); }
+            };
+
+            // Standardized Download logic
+            document.getElementById('btnDownload').onclick = async () => {
                 if(outputContent.style.display === 'none' || !outputContent.innerHTML) return;
                 
                 const format = document.getElementById('downloadFormat').value;
-                const originalContent = document.getElementById('btnSave').innerHTML;
-                document.getElementById('btnSave').innerHTML = 'Downloading...';
+                const btnDownload = document.getElementById('btnDownload');
+                const originalContent = btnDownload.innerHTML;
+                btnDownload.innerHTML = 'Downloading...';
+                btnDownload.disabled = true;
                 
                 try {
-                    const response = await fetch('http://127.0.0.1:5000/api/downloads/download', {
+                    const response = await fetch('http://localhost:5000/api/document/download', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -421,7 +446,6 @@
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement('a');
                         a.href = url;
-                        // Extension matches selected format
                         a.download = `${currentSelectedType.replace(/ /g, '_')}.${format}`;
                         document.body.appendChild(a);
                         a.click();
@@ -432,7 +456,8 @@
                 } catch (err) {
                     alert('Error downloading document.');
                 } finally {
-                    document.getElementById('btnSave').innerHTML = originalContent;
+                    btnDownload.innerHTML = originalContent;
+                    btnDownload.disabled = false;
                 }
             };
         });

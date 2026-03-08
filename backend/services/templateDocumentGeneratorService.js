@@ -29,25 +29,31 @@ exports.generateFromTemplate = async (templateStructure, userDetails) => {
         .join('\n');
 
     const prompt = `
-Generate a complete, professional document that EXACTLY follows the structure below.
+Generate a complete, professional document that EXACTLY follows the structure of the provided template.
 
 REQUIRED SECTIONS (maintain this exact order):
 ${sectionsList}
 
 Document Title: ${docTitle}
 
-User-Provided Details to incorporate into the document:
-${userDetailsStr || '- No additional details provided. Generate appropriate content for each section.'}
+User Details to incorporate:
+${userDetailsStr || '- No additional details provided. Generate appropriate content for each section based on the labels.'}
 
-CRITICAL Formatting Rules:
-- Output ONLY clean HTML — no markdown, no explanations.
-- Start directly with <h1>${docTitle}</h1>.
-- Use <h2> for EACH section header listed above, matching them exactly.
-- Use <p> for paragraphs and <ul><li> for bullet lists where appropriate.
-- Generate meaningful, professional, and complete content for each section.
-- Incorporate the user's details into the relevant sections naturally.
-- Any section not covered by user details must be filled with professionally generated AI content.
-- The document must feel complete, coherent, and submission-ready.
+STRICT Quality Rules:
+1. NO REPETITION: Do not repeat facts, sentences, or ideas across different sections.
+2. UNIQUE VALUE: Each section must contain its own unique information.
+3. SUMMARIZATION: The conclusion must summarize the entire document without duplicating earlier paragraphs.
+4. SECTION GUIDANCE:
+    - Introduction/Overview: Contextualize the document.
+    - Main Details: Focus on the specific user data.
+    - Conclusion: Wrap up professionally with unique wording.
+
+Technical Rules:
+- Output ONLY clean HTML — no markdown, no conversational filler.
+- Use <h1> for the title.
+- Use <h2> for EACH section header matching the list above EXACTLY.
+- Use <p> and <ul>/<li> for structure.
+- Content must be professional, formal, and submission-ready.
     `.trim();
 
     console.log('[Template Doc Generator] Generating document with sections:', templateStructure.sections);
