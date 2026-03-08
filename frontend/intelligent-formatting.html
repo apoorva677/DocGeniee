@@ -251,7 +251,7 @@
                     </div>
                 </a>
                 <div class="nav-links"><a href="home.html" class="nav-link">Home</a></div>
-                <div class="nav-profile"><div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold;">US</div><a href="login.html" class="btn btn-secondary" style="padding: 8px 16px;">Logout</a></div>
+                <div class="nav-profile"><div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold;">US</div><button onclick="logout()" class="btn btn-secondary" style="padding: 8px 16px; border: none; cursor: pointer; background: rgba(255,255,255,0.1); color: white; border-radius: 8px; margin-left: 12px;">Logout</button></div>
             </div>
         </div>
     </nav>
@@ -719,6 +719,11 @@
 
                 document.getElementById('analysisPanel').classList.add('visible');
             }
+
+            window.logout = function() {
+                sessionStorage.clear();
+                window.location.href = 'login.html';
+            };
         });
     </script>
 </body>

@@ -1,3 +1,7 @@
+const HTMLToDocx = require('html-to-docx');
+const puppeteer = require('puppeteer');
+const { supabaseAdmin } = require('../config/supabase');
+const path = require('path');
 const documentExportService = require('../services/documentExportService');
 const aiContentService = require('../services/aiContentService');
 
@@ -186,5 +190,75 @@ exports.deleteDocument = async (req, res) => {
 
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
+    }
+};
+
+/**
+ * Improve a document using AI (grammar, clarity, structure)
+ */
+exports.improveDocument = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Fetch document
+        const { data: doc, error: fetchError } = await supabaseAdmin
+            .from('documents')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+        if (fetchError || !doc) {
+            return res.status(404).json({ success: false, error: 'Document not found.' });
+        }
+
+        const originalContent = doc.content || '';
+
+        // Strip HTML tags for AI processing
+        const plainText = originalContent.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+        if (!plainText) {
+            return res.status(400).json({ success: false, error: 'Document has no text content to improve.' });
+        }
+
+        // Use Groq AI to improve the content
+        const Groq = require('groq-sdk');
+        const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+
+        const completion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: 'system',
+                    content: `You are an expert document editor. Your task is to improve the provided document text by:
+1. Fixing all grammar and spelling errors
+2. Improving sentence clarity and flow
+3. Enhancing paragraph structure
+4. Making the language more professional and precise
+
+Return the improved text as clean HTML using only <h2>, <h3>, <p>, <ul>, <li>, <strong> tags.
+Preserve all original information and sections. Do NOT summarize or shorten. Output ONLY the improved HTML.`
+                },
+                {
+                    role: 'user',
+                    content: plainText
+                }
+            ],
+            model: 'llama-3.3-70b-versatile',
+            temperature: 0.3,
+            max_tokens: 4000
+        });
+
+        const improvedContent = completion.choices[0].message.content.trim();
+
+        res.json({
+            success: true,
+            original: originalContent,
+            improved: improvedContent,
+            title: doc.title,
+            documentType: doc.document_type
+        });
+
+    } catch (error) {
+        console.error('[Improve Document Error]:', error);
+        res.status(500).json({ success: false, error: 'Failed to improve document: ' + error.message });
     }
 };

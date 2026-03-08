@@ -209,7 +209,7 @@
     <nav class="navbar" style="background: var(--bg-darker);">
         <div class="container">
             <div class="nav-content">
-                <a href="dashboard.html" style="text-decoration: none;">
+                <a href="home.html" style="text-decoration: none;">
                     <div class="logo">
                         <div class="logo-icon">
                             <svg width="32" height="32" viewBox="0 0 32 32" fill="none"
@@ -270,7 +270,7 @@
 
         <!-- Welcome Section -->
         <div class="welcome-section">
-            <h1 class="welcome-title">Welcome to DOC GENIE</h1>
+            <h1 class="welcome-title" id="welcomeUser">Welcome to DOC GENIE</h1>
             <p class="welcome-subtitle">An AI powered platform that automatically generates professional documents using
                 structured input and intelligent formatting.</p>
             <a href="#" class="btn btn-primary">
@@ -426,6 +426,14 @@
             </a>
 
 
+        </div>
+
+        <!-- Recent Documents Section (Dynamically Loaded) -->
+        <div id="recentActivitySection" style="display: none; margin-bottom: 60px;">
+            <h2 style="font-family: var(--font-display); font-size: 20px; font-weight: 600; margin-bottom: 24px;">Recent Documents</h2>
+            <div id="documentsList" class="home-features-grid">
+                <!-- Loaded by JS -->
+            </div>
         </div>
 
         <!-- About Section -->

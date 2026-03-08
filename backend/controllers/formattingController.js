@@ -20,7 +20,7 @@ function slugToTitle(slug) {
  */
 exports.formatContent = async (req, res) => {
     try {
-        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle } = req.body;
+        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, documentTheme } = req.body;
 
         if (!content) {
             return res.status(400).json({ success: false, message: 'Content is required for formatting' });
@@ -43,7 +43,8 @@ exports.formatContent = async (req, res) => {
             fontSize,
             boldHeadings,
             lineSpacing,
-            fontStyle
+            fontStyle,
+            documentTheme
         });
 
         console.log('[Formatting Controller]: Formatting completed successfully');
@@ -65,7 +66,7 @@ exports.formatUploadedDocument = async (req, res) => {
     const file = req.file;
 
     try {
-        let { title, mode, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, formattingInstructions } = req.body;
+        let { title, userId, mode, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, documentTheme, formattingInstructions } = req.body;
 
         if (!file) {
             return res.status(400).json({ success: false, message: 'Document file is required' });
@@ -101,7 +102,8 @@ exports.formatUploadedDocument = async (req, res) => {
             fontStyle,
             fontSize,
             boldHeadings,
-            formattingInstructions
+            formattingInstructions,
+            documentTheme
         });
 
         // 5. Save to Supabase History if userId is provided
