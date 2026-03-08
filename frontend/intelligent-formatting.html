@@ -189,6 +189,51 @@
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .empty-state { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-tertiary); text-align: center; }
+
+        /* Analysis Panel */
+        .analysis-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .analysis-panel.visible { display: block; }
+        .analysis-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .analysis-metrics {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .metric-card {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+        .metric-value {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .metric-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .metric-good   { color: #10b981; }
+        .metric-ok     { color: #f59e0b; }
+        .metric-poor   { color: #ef4444; }
     </style>
 </head>
 
@@ -346,6 +391,29 @@
                 </div>
             </div>
 
+            <!-- Document Analysis Panel -->
+            <div class="analysis-panel" id="analysisPanel">
+                <div class="analysis-title">📊 Document Analysis</div>
+                <div class="analysis-metrics">
+                    <div class="metric-card">
+                        <div class="metric-value metric-good" id="metricScore">–</div>
+                        <div class="metric-label">Document Score</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="metricReadability">–</div>
+                        <div class="metric-label">Readability</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value" id="metricStructure">–</div>
+                        <div class="metric-label">Structure Quality</div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-value metric-good" id="metricGrammar">AI ✓</div>
+                        <div class="metric-label">Grammar Quality</div>
+                    </div>
+                </div>
+            </div>
+
             <div class="editor-container">
                 <!-- AI Type Badge -->
                 <div id="detectedTypeContainer" style="display: none; margin-bottom: 20pt; padding: 10pt 15pt; background: rgba(99, 102, 241, 0.1); border: 1pt solid var(--primary-600); border-radius: 12pt; text-align: center; color: var(--primary-100); font-weight: bold; letter-spacing: 0.5pt;">
@@ -479,6 +547,9 @@
                             document.getElementById('detectedDocumentType').innerText = data.detectedDocumentType;
                             document.getElementById('detectedTypeContainer').style.display = 'block';
                         }
+
+                        // Populate Analysis Panel
+                        populateAnalysis(data.formattedContent);
                         
                         showToast('Formatting completed successfully!');
                     } else {
@@ -622,6 +693,44 @@
                     toast.style.transition = 'opacity 0.3s ease-out';
                     setTimeout(() => toast.remove(), 300);
                 }, 3000);
+            }
+
+            // Document Analysis
+            function populateAnalysis(html) {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const plainText = doc.body.innerText || doc.body.textContent || '';
+                const words = plainText.trim().split(/\s+/).filter(Boolean);
+                const sentences = plainText.split(/[.!?]+/).filter(s => s.trim().length > 3);
+                const headings = doc.querySelectorAll('h1,h2,h3').length;
+                const paragraphs = doc.querySelectorAll('p').length;
+
+                // Readability: avg words per sentence
+                const avgWords = sentences.length ? Math.round(words.length / sentences.length) : 0;
+                const readabilityLabel = avgWords <= 15 ? 'Easy' : avgWords <= 22 ? 'Medium' : 'Complex';
+                const readabilityClass = avgWords <= 15 ? 'metric-good' : avgWords <= 22 ? 'metric-ok' : 'metric-poor';
+
+                // Structure: based on headings
+                const structureLabel = headings >= 4 ? 'Excellent' : headings >= 2 ? 'Good' : headings === 1 ? 'Basic' : 'Minimal';
+                const structureClass = headings >= 4 ? 'metric-good' : headings >= 2 ? 'metric-ok' : 'metric-poor';
+
+                // Score: composite
+                let score = 50;
+                if (headings >= 2) score += 15;
+                if (paragraphs >= 3) score += 15;
+                if (words.length >= 200) score += 10;
+                if (avgWords <= 22) score += 10;
+                score = Math.min(score, 100);
+                const scoreClass = score >= 80 ? 'metric-good' : score >= 60 ? 'metric-ok' : 'metric-poor';
+
+                document.getElementById('metricScore').textContent = score + '%';
+                document.getElementById('metricScore').className = `metric-value ${scoreClass}`;
+                document.getElementById('metricReadability').textContent = readabilityLabel;
+                document.getElementById('metricReadability').className = `metric-value ${readabilityClass}`;
+                document.getElementById('metricStructure').textContent = structureLabel;
+                document.getElementById('metricStructure').className = `metric-value ${structureClass}`;
+
+                document.getElementById('analysisPanel').classList.add('visible');
             }
         });
     </script>

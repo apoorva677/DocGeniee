@@ -5,6 +5,17 @@ const aiContentService = require('../services/aiContentService');
 const { supabaseAdmin } = require('../config/supabase');
 
 /**
+ * Helper: Convert a filename slug to a clean Title Case string
+ * e.g. "sample-service-agreement" -> "Sample Service Agreement"
+ */
+function slugToTitle(slug) {
+    return slug
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim();
+}
+
+/**
  * Intelligent Formatting Controller
  */
 exports.formatContent = async (req, res) => {
@@ -101,8 +112,10 @@ exports.formatUploadedDocument = async (req, res) => {
 
         // 4. Format the extracted text
         console.log('Formatting rules applied');
+        const rawTitle = title || file.originalname.split('.')[0];
+        const cleanTitle = slugToTitle(rawTitle);
         const formattedContent = await formattingService.format({
-            title: title || file.originalname.split('.')[0],
+            title: cleanTitle,
             content: refinedText,
             formattingType: detectedType,
             alignment,
@@ -123,7 +136,7 @@ exports.formatUploadedDocument = async (req, res) => {
                 .from('documents')
                 .insert([{
                     user_id: userId,
-                    title: title || file.originalname.split('.')[0],
+                    title: cleanTitle,
                     document_type: detectedType,
                     source: 'Formatter',
                     content: formattedContent
@@ -134,7 +147,7 @@ exports.formatUploadedDocument = async (req, res) => {
                 .from('generated_documents')
                 .insert([{
                     user_id: userId,
-                    title: title || file.originalname.split('.')[0],
+                    title: cleanTitle,
                     category: 'Formatting',
                     doc_type: detectedType,
                     content_raw: extractedText,

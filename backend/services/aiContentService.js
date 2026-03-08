@@ -130,6 +130,10 @@ exports.detectDocumentType = async (text, instructions = '') => {
                     - Report
                     - Academic Paper
                     - Business Proposal
+                    - Contract
+                    - Agreement
+                    - Legal Document
+                    - Service Agreement
                     - Book
                     - Novel
                     - Resume
@@ -153,7 +157,7 @@ exports.detectDocumentType = async (text, instructions = '') => {
         console.log(`[AI Service] Detected Type: ${detected}`);
         
         // Validation with fallback
-        const validTypes = ['Letter', 'Report', 'Academic Paper', 'Business Proposal', 'Book', 'Novel', 'Resume', 'General Document'];
+        const validTypes = ['Letter', 'Report', 'Academic Paper', 'Business Proposal', 'Contract', 'Agreement', 'Legal Document', 'Service Agreement', 'Book', 'Novel', 'Resume', 'General Document'];
         const finalType = validTypes.includes(detected) ? detected : 'General Document';
         
         return finalType;

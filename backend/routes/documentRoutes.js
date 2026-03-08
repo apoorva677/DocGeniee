@@ -11,4 +11,7 @@ router.get('/:id', documentController.getDocumentById);
 router.post('/', documentController.saveDocument);
 router.delete('/:id', documentController.deleteDocument);
 
+// AI Document Improver
+router.post('/:id/improve', documentController.improveDocument);
+
 module.exports = router;

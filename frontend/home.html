@@ -223,16 +223,16 @@
                 
                 <div class="nav-profile">
                     <!-- Settings Icon -->
-                    <button class="icon-btn" aria-label="Settings">
+                    <a href="settings.html" class="icon-btn" aria-label="Settings" title="Settings">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="3"></circle>
                             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                         </svg>
-                    </button>
+                    </a>
 
                     <!-- Profile Avatar & Dropdown -->
                     <div style="position: relative; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                        <div style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                        <div id="navAvatar" style="width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-600), var(--purple-600)); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
                             US
                         </div>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-secondary);">
@@ -240,17 +240,16 @@
                         </svg>
                         
                         <div class="profile-dropdown">
-                            <a href="#" class="dropdown-item">View Profile</a>
-                            <a href="#" class="dropdown-item">Settings</a>
+                            <div style="padding: 12px 20px 8px; border-bottom: 1px solid var(--border-color); margin-bottom: 4px;">
+                                <div id="navDropName" style="font-weight: 600; font-size: 14px;">User</div>
+                                <div id="navDropEmail" style="font-size: 12px; color: var(--text-secondary);"></div>
+                            </div>
+                            <a href="profile.html" class="dropdown-item">👤 View Profile</a>
+                            <a href="settings.html" class="dropdown-item">⚙️ Settings</a>
                             <div style="height: 1px; background: var(--border-color); margin: 4px 0;"></div>
-                            <a href="login.html" class="dropdown-item" style="color: #ef4444;">Logout</a>
+                            <a href="#" class="dropdown-item" style="color: #ef4444;" onclick="sessionStorage.clear(); window.location.href='login.html';">🚪 Logout</a>
                         </div>
                     </div>
-
-                    <!-- Logout Button -->
-                    <a href="login.html" class="btn btn-secondary" style="padding: 8px 16px; font-size: 13px;">
-                        Logout
-                    </a>
                 </div>
             </div>
         </div>
@@ -419,6 +418,15 @@
 
             // Update UI
             document.getElementById('welcomeUser').textContent = `Welcome back, ${userData.user_metadata?.full_name || 'Genie'}`;
+            
+            // Update nav avatar
+            const name = userData.user_metadata?.full_name || 'User';
+            const navAvatar = document.getElementById('navAvatar');
+            const navDropName = document.getElementById('navDropName');
+            const navDropEmail = document.getElementById('navDropEmail');
+            if (navAvatar) navAvatar.textContent = name.charAt(0).toUpperCase();
+            if (navDropName) navDropName.textContent = name;
+            if (navDropEmail) navDropEmail.textContent = userData.email || '';
             
             // Load Recent Documents from new endpoint
             fetch(`http://127.0.0.1:5000/api/documents?userId=${userData.id}`)
