@@ -28,18 +28,29 @@ exports.format = async (params) => {
 
     // 1. Semantic Tag Parser (Tag-based structure)
     const parseTaggedContent = (text) => {
+        // First strip any closing tags like [/TITLE], [/ADDRESS] etc.
+        const stripped = text.replace(/\[\/[A-Z_]+\]/g, '').trim();
+        
         const segments = [];
         // Regex to match [TAG]...[/TAG] OR [TAG]...[NEXT_TAG]
         const regex = /\[([A-Z_]+)\]([\s\S]*?)(\[\/\1\]|(?=\[[A-Z_]+\])|$)/g;
         let match;
-        while ((match = regex.exec(text)) !== null) {
-            // Cleanup: remove any internal structural tags if they somehow leaked into content
-            const segmentContent = match[2].replace(/\[\/?(TITLE|ADDRESS|DATE|SECTION|SUBSECTION|BODY|LIST_ITEM|CLOSING|ABSTRACT)\]/g, '').trim();
-            if (segmentContent) {
-                segments.push({ tag: match[1], content: segmentContent });
+        while ((match = regex.exec(stripped)) !== null) {
+            const tagContent = match[2].trim();
+            if (tagContent.length > 0) {
+                segments.push({ tag: match[1], content: tagContent });
             }
         }
-        return segments.length > 0 ? segments : [{ tag: 'BODY', content: text.replace(/\[\/?(TITLE|ADDRESS|DATE|SECTION|SUBSECTION|BODY|LIST_ITEM|CLOSING|ABSTRACT)\]/g, '').trim() }];
+        
+        // Fallback: split untagged text into paragraphs by newlines
+        if (segments.length === 0) {
+            const paras = stripped.split(/\n{2,}/).filter(p => p.trim().length > 0);
+            if (paras.length > 1) {
+                return paras.map(p => ({ tag: 'BODY', content: p.trim() }));
+            }
+            return [{ tag: 'BODY', content: stripped }];
+        }
+        return segments;
     };
 
     const segments = parseTaggedContent(content);
@@ -105,11 +116,40 @@ exports.format = async (params) => {
         }
     };
 
+    // Legal/Contract renderer
+    renderers['Legal'] = () => {
+        let html = '';
+        segments.forEach(seg => {
+            if (seg.tag === 'TITLE') {
+                html += `<h1 style="font-size: 20pt; text-align: center; font-weight: 800; text-transform: uppercase; margin-bottom: 30pt; color: ${t.accent}; letter-spacing: 1pt;">${seg.content}</h1>`;
+            } else if (seg.tag === 'DATE') {
+                html += `<div style="text-align: right; font-size: ${config.bodySize}; margin-bottom: 20pt; color: #555;">${seg.content}</div>`;
+            } else if (seg.tag === 'ADDRESS') {
+                html += `<div style="margin-bottom: 20pt; line-height: 1.8; font-size: ${config.bodySize};">${seg.content.replace(/\n/g, '<br>')}</div>`;
+            } else if (seg.tag === 'SECTION') {
+                html += `<h2 style="font-size: 13pt; font-weight: 700; text-transform: uppercase; margin-top: 25pt; margin-bottom: 10pt; color: ${t.accent}; border-bottom: 1pt solid ${t.accent}; padding-bottom: 5pt;">${seg.content}</h2>`;
+            } else if (seg.tag === 'SUBSECTION') {
+                html += `<h3 style="font-size: 12pt; font-weight: 600; margin-top: 15pt; margin-bottom: 8pt;">${seg.content}</h3>`;
+            } else if (seg.tag === 'LIST_ITEM') {
+                html += `<div style="display: flex; gap: 10pt; margin-bottom: 6pt; font-size: ${config.bodySize};"><span style="font-weight: bold; min-width: 12pt;">•</span><span>${seg.content}</span></div>`;
+            } else if (seg.tag === 'CLOSING') {
+                html += `<div style="margin-top: 50pt; display: flex; justify-content: space-between;">
+                    <div style="width: 45%; text-align: center;"><div style="border-top: 1pt solid #333; padding-top: 8pt; font-weight: bold;">Authorized Signature</div></div>
+                    <div style="width: 45%; text-align: center;"><div style="border-top: 1pt solid #333; padding-top: 8pt; font-weight: bold;">Witness Signature</div></div>
+                </div>`;
+            } else {
+                html += `<p style="font-size: ${config.bodySize}; line-height: ${config.lineSpacing}; margin-bottom: 12pt; text-align: justify;">${seg.content}</p>`;
+            }
+        });
+        return html;
+    };
+
     // 3. Document Selection & Wrapping
     let bodyHtml = '';
     if (type === 'Resume') bodyHtml = renderers['Resume']();
     else if (type === 'Letter') bodyHtml = renderers['Letter']();
     else if (type === 'Academic Paper') bodyHtml = renderers['Academic Paper']();
+    else if (['Contract', 'Agreement', 'Legal Document', 'Service Agreement'].includes(type)) bodyHtml = renderers['Legal']();
     else bodyHtml = renderers['Standard']();
 
     const wrapperStyle = `

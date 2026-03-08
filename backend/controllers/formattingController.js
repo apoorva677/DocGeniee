@@ -2,13 +2,25 @@ const fs = require('fs');
 const formattingService = require('../services/formattingService');
 const documentParser = require('../utils/documentParser');
 const aiContentService = require('../services/aiContentService');
+const { supabaseAdmin } = require('../config/supabase');
+
+/**
+ * Helper: Convert a filename slug to a clean Title Case string
+ * e.g. "sample-service-agreement" -> "Sample Service Agreement"
+ */
+function slugToTitle(slug) {
+    return slug
+        .replace(/[-_]+/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase())
+        .trim();
+}
 
 /**
  * Intelligent Formatting Controller
  */
 exports.formatContent = async (req, res) => {
     try {
-        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings } = req.body;
+        let { title, content, mode, formattingType, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, documentTheme } = req.body;
 
         if (!content) {
             return res.status(400).json({ success: false, message: 'Content is required for formatting' });
@@ -31,7 +43,8 @@ exports.formatContent = async (req, res) => {
             fontSize,
             boldHeadings,
             lineSpacing,
-            fontStyle
+            fontStyle,
+            documentTheme
         });
 
         console.log('[Formatting Controller]: Formatting completed successfully');
@@ -52,16 +65,16 @@ exports.formatContent = async (req, res) => {
  */
 exports.formatUploadedDocument = async (req, res) => {
     const file = req.file;
-    
+
     try {
-        let { title, mode, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, formattingInstructions } = req.body;
+        let { title, userId, mode, alignment, spacing, headingStyle, lineSpacing, bulletStyle, fontStyle, fontSize, boldHeadings, documentTheme, formattingInstructions } = req.body;
 
         if (!file) {
             return res.status(400).json({ success: false, message: 'Document file is required' });
         }
 
         console.log('Document uploaded');
-        
+
         // 1. Extract text from the doc
         const extractedText = await documentParser.parseDocument(file.path, file.mimetype);
         console.log('Text extracted successfully');
@@ -75,8 +88,10 @@ exports.formatUploadedDocument = async (req, res) => {
 
         // 4. Format the extracted text
         console.log('Formatting rules applied');
+        const rawTitle = title || file.originalname.split('.')[0];
+        const cleanTitle = slugToTitle(rawTitle);
         const formattedContent = await formattingService.format({
-            title: title || file.originalname.split('.')[0],
+            title: cleanTitle,
             content: refinedText,
             mode: mode || 'auto',
             formattingType: detectedType, // AI Detected Type
@@ -88,11 +103,40 @@ exports.formatUploadedDocument = async (req, res) => {
             fontStyle,
             fontSize,
             boldHeadings,
-            formattingInstructions
+            formattingInstructions,
+            documentTheme
         });
 
+        // 5. Save to Supabase History if userId is provided
+        if (userId && supabaseAdmin) {
+            // New table
+            await supabaseAdmin
+                .from('documents')
+                .insert([{
+                    user_id: userId,
+                    title: title || file.originalname.split('.')[0],
+                    document_type: detectedType,
+                    source: 'Formatter',
+                    content: formattedContent
+                }]);
+
+            // Original table
+            const { error: dbError } = await supabaseAdmin
+                .from('generated_documents')
+                .insert([{
+                    user_id: userId,
+                    title: title || file.originalname.split('.')[0],
+                    category: 'Formatting',
+                    doc_type: detectedType,
+                    content_raw: extractedText,
+                    content_formatted: formattedContent
+                }]);
+
+            if (dbError) console.error('[DB Error]: Failed to save document:', dbError);
+        }
+
         console.log('Formatted document returned');
-        
+
         res.json({
             success: true,
             detectedType: detectedType,

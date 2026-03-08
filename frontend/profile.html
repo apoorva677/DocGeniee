@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - DOC GENIE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        :root { --sidebar-width: 280px; }
+        body { background: var(--bg-dark); color: var(--text-primary); display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar { width: var(--sidebar-width); background: var(--bg-card); border-right: 1px solid var(--border-color); padding: 30px; display: flex; flex-direction: column; position: fixed; height: 100vh; left: 0; top: 0; z-index: 100; }
+        .main-content { flex: 1; margin-left: var(--sidebar-width); padding: 40px; }
+        .sidebar-logo { margin-bottom: 50px; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 10px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-weight: 500; transition: var(--transition-smooth); }
+        .nav-item:hover, .nav-item.active { background: rgba(99,102,241,0.1); color: var(--primary-600); }
+        .nav-item svg { width: 20px; height: 20px; }
+        .logout-btn { margin-top: auto; color: #ef4444; }
+        .logout-btn:hover { background: rgba(239,68,68,0.1); }
+
+        /* Header */
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; }
+
+        /* Profile Hero */
+        .profile-hero {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 28px;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-hero::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 220px; height: 220px;
+            background: radial-gradient(circle, rgba(99,102,241,0.15), transparent 70%);
+            pointer-events: none;
+        }
+        .avatar-large {
+            width: 96px; height: 96px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-600), var(--purple-600));
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-display);
+            font-size: 36px; font-weight: 700; color: white;
+            flex-shrink: 0;
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+        }
+        .profile-info h1 { font-family: var(--font-display); font-size: 26px; font-weight: 700; margin-bottom: 6px; }
+        .profile-info .email { color: var(--text-secondary); font-size: 15px; margin-bottom: 12px; }
+        .profile-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); border-radius: 100px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 28px;
+        }
+        .stat-card {
+            background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 16px; padding: 24px; text-align: center; transition: var(--transition-smooth);
+        }
+        .stat-card:hover { border-color: var(--primary-600); transform: translateY(-3px); }
+        .stat-value { font-family: var(--font-display); font-size: 32px; font-weight: 700; color: var(--primary-400); }
+        .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }
+
+        /* Edit Profile Form */
+        .card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; padding: 32px; margin-bottom: 24px; }
+        .card-title { font-family: var(--font-display); font-size: 18px; font-weight: 600; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
+        .card-title svg { color: var(--primary-600); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-group.full { grid-column: 1 / -1; }
+        .form-label { font-size: 13px; font-weight: 500; color: var(--text-secondary); }
+        .form-input {
+            background: rgba(0,0,0,0.2); border: 1px solid var(--border-color); border-radius: 10px;
+            padding: 12px 16px; color: var(--text-primary); font-family: var(--font-primary); font-size: 14px; transition: var(--transition-smooth);
+        }
+        .form-input:focus { outline: none; border-color: var(--primary-600); box-shadow: 0 0 0 2px rgba(99,102,241,0.1); }
+        .form-input:disabled { opacity: 0.5; cursor: not-allowed; }
+        .save-btn { margin-top: 24px; }
+
+        /* Activity List */
+        .activity-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border-color); }
+        .activity-item:last-child { border-bottom: none; }
+        .activity-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(99,102,241,0.1); color: var(--primary-600); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .activity-detail { flex: 1; }
+        .activity-title { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+        .activity-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo">
+                <div class="logo-icon">
+                    <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <rect width="32" height="32" rx="8" fill="url(#sg)"/>
+                        <path d="M16 8L22 12V20L16 24L10 20V12L16 8Z" stroke="white" stroke-width="2"/>
+                        <circle cx="16" cy="16" r="3" fill="white"/>
+                        <defs><linearGradient id="sg"><stop stop-color="#6366f1"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient></defs>
+                    </svg>
+                </div>
+                <span class="logo-text">DOC GENIE</span>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="home.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Home
+            </a>
+            <a href="documents.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                My Documents
+            </a>
+            <a href="profile.html" class="nav-item active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                My Profile
+            </a>
+            <a href="settings.html" class="nav-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                Settings
+            </a>
+            <a href="#" class="nav-item logout-btn" onclick="doLogout()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main -->
+    <main class="main-content">
+        <div class="page-header">
+            <div>
+                <h1 style="font-family: var(--font-display); font-size: 28px;">My Profile</h1>
+                <p style="color: var(--text-secondary);">Manage your personal information and account details</p>
+            </div>
+        </div>
+
+        <!-- Profile Hero -->
+        <div class="profile-hero">
+            <div class="avatar-large" id="avatarLarge">U</div>
+            <div class="profile-info">
+                <h1 id="heroName">Loading...</h1>
+                <div class="email" id="heroEmail">loading@example.com</div>
+                <div class="profile-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    Active Account
+                </div>
+            </div>
+            <div style="margin-left: auto; text-align: right;">
+                <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 4px;">Member since</div>
+                <div style="font-weight: 600;" id="memberSince">—</div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-value" id="statDocs">—</div>
+                <div class="stat-label">Documents Created</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statFormatted">—</div>
+                <div class="stat-label">Documents Formatted</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="statImproved">—</div>
+                <div class="stat-label">AI Improvements</div>
+            </div>
+        </div>
+
+        <!-- Edit Profile -->
+        <div class="card">
+            <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Edit Profile
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" id="editName" class="form-input" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="editEmail" class="form-input" disabled placeholder="your@email.com">
+                </div>
+                <div class="form-group full">
+                    <label class="form-label">Bio (optional)</label>
+                    <input type="text" id="editBio" class="form-input" placeholder="Tell us a little about yourself...">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Organization (optional)</label>
+                    <input type="text" id="editOrg" class="form-input" placeholder="Company or institution">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Role (optional)</label>
+                    <input type="text" id="editRole" class="form-input" placeholder="Your job title or role">
+                </div>
+            </div>
+            <div class="save-btn">
+                <button class="btn btn-primary" id="saveProfileBtn" onclick="saveProfile()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                    Save Changes
+                </button>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card">
+            <div class="card-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Recent Document Activity
+            </div>
+            <div id="activityList">
+                <p style="color: var(--text-secondary); font-size: 14px;">Loading activity...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (!userData) { window.location.href = 'login.html'; return; }
+
+            const name = userData.user_metadata?.full_name || 'Genie';
+            const email = userData.email || '';
+            const createdAt = userData.created_at ? new Date(userData.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '—';
+
+            // Hero
+            document.getElementById('heroName').textContent = name;
+            document.getElementById('heroEmail').textContent = email;
+            document.getElementById('avatarLarge').textContent = name.charAt(0).toUpperCase();
+            document.getElementById('memberSince').textContent = createdAt;
+
+            // Form pre-fill
+            document.getElementById('editName').value = name;
+            document.getElementById('editEmail').value = email;
+
+            // Load saved profile extras from localStorage
+            const extras = JSON.parse(localStorage.getItem('docgenie_profile_extras') || '{}');
+            if (extras.bio) document.getElementById('editBio').value = extras.bio;
+            if (extras.org) document.getElementById('editOrg').value = extras.org;
+            if (extras.role) document.getElementById('editRole').value = extras.role;
+
+            // Load documents for stats + activity
+            fetch(`http://127.0.0.1:5000/api/documents?userId=${userData.id}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success) {
+                        const docs = data.documents;
+                        const formatted = docs.filter(d => d.source === 'Formatter').length;
+                        const improved = docs.filter(d => d.source === 'AI Improver').length;
+                        document.getElementById('statDocs').textContent = docs.length;
+                        document.getElementById('statFormatted').textContent = formatted;
+                        document.getElementById('statImproved').textContent = improved;
+
+                        const list = document.getElementById('activityList');
+                        if (docs.length === 0) {
+                            list.innerHTML = '<p style="color:var(--text-secondary);font-size:14px;">No documents yet. Start creating!</p>';
+                            return;
+                        }
+                        list.innerHTML = docs.slice(0, 6).map(doc => `
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                                </div>
+                                <div class="activity-detail">
+                                    <div class="activity-title">${doc.title}</div>
+                                    <div class="activity-meta">${doc.document_type || 'General'} · ${doc.source || 'Doc Genie'} · ${new Date(doc.created_at).toLocaleDateString()}</div>
+                                </div>
+                            </div>
+                        `).join('');
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('statDocs').textContent = '—';
+                    document.getElementById('statFormatted').textContent = '—';
+                    document.getElementById('statImproved').textContent = '—';
+                });
+        });
+
+        function saveProfile() {
+            const btn = document.getElementById('saveProfileBtn');
+            btn.textContent = 'Saving...';
+            btn.disabled = true;
+
+            const extras = {
+                bio: document.getElementById('editBio').value,
+                org: document.getElementById('editOrg').value,
+                role: document.getElementById('editRole').value
+            };
+            localStorage.setItem('docgenie_profile_extras', JSON.stringify(extras));
+
+            const userData = JSON.parse(sessionStorage.getItem('docgenie_user'));
+            if (userData) {
+                const newName = document.getElementById('editName').value.trim();
+                if (newName && userData.user_metadata) {
+                    userData.user_metadata.full_name = newName;
+                    sessionStorage.setItem('docgenie_user', JSON.stringify(userData));
+                    document.getElementById('heroName').textContent = newName;
+                    document.getElementById('avatarLarge').textContent = newName.charAt(0).toUpperCase();
+                }
+            }
+
+            setTimeout(() => {
+                btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Saved!';
+                btn.style.background = '#10b981';
+                setTimeout(() => {
+                    btn.innerHTML = 'Save Changes';
+                    btn.style.background = '';
+                    btn.disabled = false;
+                }, 2000);
+            }, 600);
+        }
+
+        function doLogout() {
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
